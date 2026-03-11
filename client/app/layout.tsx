@@ -69,7 +69,43 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <meta
+        name="google-site-verification"
+        content="ipHbApTsNCMMhHn91DcftOdV-fdz6Bsx_qDN0GkoUdg"
+      />
+
       <body className="bg-gray-50 text-gray-800">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Automation Experts Marketplace",
+              url: "https://searchmyexpert-psi.vercel.app",
+              logo: "https://searchmyexpert-psi.vercel.app/logo.png",
+              description:
+                "Automation Experts Marketplace helps businesses hire top automation experts for Zapier, n8n, AI agents, API integrations and workflow automation.",
+              foundingLocation: {
+                "@type": "Place",
+                name: "India",
+              },
+              sameAs: [
+                "https://www.linkedin.com",
+                "https://twitter.com",
+                "https://github.com",
+              ],
+              knowsAbout: [
+                "Zapier Automation",
+                "n8n Automation",
+                "AI Agents",
+                "Workflow Automation",
+                "API Integrations",
+                "Business Automation",
+              ],
+            }),
+          }}
+        />
         <AuthGuard />
         <main className="min-h-screen">{children}</main>
       </body>
