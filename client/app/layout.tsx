@@ -1,15 +1,18 @@
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import AuthGuard from "@/components/AuthGuard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://searchmyexpert-psi.vercel.app"),
+
   title: {
     default: "Automation Experts Marketplace",
     template: "%s | Automation Experts",
   },
+
   description:
-    "Find top automation experts for Zapier, n8n, AI agents, API integrations, and workflow automation.",
+    "Hire top automation experts for Zapier, n8n, AI agents, API integrations and workflow automation.",
+
   keywords: [
     "automation experts",
     "zapier expert",
@@ -17,17 +20,30 @@ export const metadata: Metadata = {
     "AI automation",
     "workflow automation",
     "API integrations",
+    "hire automation expert",
   ],
+
   authors: [{ name: "Automation Experts" }],
   creator: "Automation Experts",
-  metadataBase: new URL("https://yourdomain.com"),
+
+  alternates: {
+    canonical: "/",
+  },
 
   openGraph: {
     title: "Automation Experts Marketplace",
     description:
-      "Hire top automation experts for Zapier, n8n, AI, and API integrations.",
-    url: "https://yourdomain.com",
+      "Find and hire top automation experts for Zapier, n8n, AI agents and workflow automation.",
+    url: "https://searchmyexpert-psi.vercel.app",
     siteName: "Automation Experts",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Automation Experts Marketplace",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -36,7 +52,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Automation Experts Marketplace",
     description:
-      "Hire top automation experts for Zapier, n8n, AI agents, and integrations.",
+      "Hire top automation experts for Zapier, n8n, AI agents and integrations.",
+    images: ["/og-image.png"],
   },
 
   robots: {
@@ -54,7 +71,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-50 text-gray-800">
         <AuthGuard />
-
         <main className="min-h-screen">{children}</main>
       </body>
     </html>
