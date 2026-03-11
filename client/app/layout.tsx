@@ -131,6 +131,10 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <meta
+        name="google-site-verification"
+        content="ipHbApTsNCMMhHn91DcftOdV-fdz6Bsx_qDN0GkoUdg"
+      />
       <body className="bg-gray-50 text-gray-800">
         <AuthGuard />
 
