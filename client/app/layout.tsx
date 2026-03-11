@@ -3,7 +3,7 @@ import AuthGuard from "@/components/AuthGuard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://automationexperts.com"),
+  metadataBase: new URL("https://searchmyexpert-psi.vercel.app"),
 
   title: {
     default: "Automation Experts Marketplace",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "Automation Experts Marketplace",
     description:
       "Find and hire top automation experts for Zapier, n8n, AI agents and workflow automation.",
-    url: "https://automationexperts.com",
+    url: "https://searchmyexpert-psi.vercel.app",
     siteName: "Automation Experts",
     images: [
       {
