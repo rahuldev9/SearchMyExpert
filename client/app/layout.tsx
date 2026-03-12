@@ -137,7 +137,6 @@ export default function RootLayout({
       />
       <body className="bg-gray-50 text-gray-800">
         <AuthGuard />
-
         {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"

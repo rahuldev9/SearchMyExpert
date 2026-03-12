@@ -1,0 +1,26 @@
+// lib/api/user.ts
+
+import API from "@/lib/api";
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  createdAt?: string;
+  role?: "business" | "expert";
+}
+
+export const getUserProfile = async (): Promise<User> => {
+  try {
+    const response = await API.get("/auth/profile");
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || { message: "Failed to fetch user" };
+  }
+};
+
+export const getUserId = async (): Promise<string> => {
+  const user = await getUserProfile();
+  return user._id;
+};

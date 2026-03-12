@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import API from "@/lib/api";
 import MyRequestCard from "@/components/MyRequestCard";
 
 export default function MyRequests() {
@@ -9,7 +9,7 @@ export default function MyRequests() {
 
   useEffect(() => {
     const fetchRequests = async () => {
-      const res = await api.get("/requests/my-requests");
+      const res = await API.get("/requests/my-requests");
 
       setRequests(res.data);
     };

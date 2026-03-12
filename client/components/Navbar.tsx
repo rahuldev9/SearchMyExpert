@@ -4,6 +4,7 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const [token, setToken] = useState<string | undefined>();
@@ -39,9 +40,7 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-blue-600">
-          AutoMatch AI
-        </Link>
+        <Logo />
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">

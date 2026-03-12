@@ -1,30 +1,35 @@
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/db");
 require("dotenv").config();
-const authRoutes = require("./routes/authRoutes");
-const requestRoutes = require("./routes/requestRoutes");
-const userRoutes = require("./routes/expertRoutes");
-const applicationRoutes = require("./routes/applicationRoutes");
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+
+const authRoutes = require("./src/routes/authRoutes");
+const cookieParser = require("cookie-parser");
+const passport = require("./src/config/passport");
+const crypto = require("crypto");
+
 const app = express();
 
-connectDB();
+app.use(passport.initialize());
+app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
+// CORS (important for cookies)
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 
-app.use(cors());
 app.use(express.json());
 
-app.use("/api/applications", applicationRoutes);
+app.use("/auth", authRoutes);
 
-app.use("/api/users", userRoutes);
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/requests", requestRoutes);
-app.get("/", (req, res) => {
-  res.send("API Running");
-});
-
-const PORT = 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`CodeInsight API running on ${process.env.PORT}`);
 });
