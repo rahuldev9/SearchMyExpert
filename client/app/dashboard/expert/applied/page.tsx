@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { api } from "@/lib/api";
+import API from "@/lib/api";
 
 export default function AppliedRequestsPage() {
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     const fetchApplications = async () => {
-      const res = await api.get("/applications/my-applications");
+      const res = await API.get("/applications/my-applications");
 
       setApplications(res.data);
     };
