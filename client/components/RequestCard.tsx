@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "@/lib/api";
+import API from "@/lib/api";
 
 type Props = {
   id: string;
@@ -12,7 +12,7 @@ type Props = {
 export default function RequestCard({ id, title, description, budget }: Props) {
   const apply = async () => {
     try {
-      await api.post("/applications", {
+      await API.post("/applications", {
         requestId: id,
       });
 

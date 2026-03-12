@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import API from "@/lib/api";
 import Link from "next/link";
 
 export default function Experts() {
@@ -9,7 +9,7 @@ export default function Experts() {
 
   useEffect(() => {
     const fetchExperts = async () => {
-      const res = await api.get("/users/experts");
+      const res = await API.get("/users/experts");
       setExperts(res.data);
     };
 
