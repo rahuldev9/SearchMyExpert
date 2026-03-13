@@ -19,6 +19,7 @@ const {
 
 const { protect } = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
+const { getPublicProfile } = require("../controllers/userController");
 
 // Local Auth
 router.post("/register", register);
@@ -47,5 +48,5 @@ router.delete("/delete-account", protect, deleteAccount);
 router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:token", resetPassword);
 router.post("/set-password", protect, setPassword);
-
+router.get("/profile/:userId", getPublicProfile);
 module.exports = router;

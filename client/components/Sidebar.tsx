@@ -93,18 +93,26 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
   // ================= MENUS =================
 
   const expertMenu = [
-    { name: "Dashboard", path: "/dashboard/expert", icon: LayoutDashboard },
-    { name: "Requests", path: "/requests", icon: ClipboardList },
-    { name: "Projects", path: "/projects", icon: Folder },
-    { name: "Messages", path: "/messages", icon: MessageSquare },
+    {
+      name: "Dashboard",
+      path: "/dashboard/expert",
+      icon: LayoutDashboard,
+    },
+    { name: "Requests", path: "/dashboard/my-projects", icon: ClipboardList },
+    { name: "Projects", path: "/dashboard/projects", icon: Folder },
+    { name: "Messages", path: "/dashboard/chats", icon: MessageSquare },
   ];
 
   const businessMenu = [
     { name: "Dashboard", path: "/dashboard/business", icon: LayoutDashboard },
     { name: "Search Experts", path: "/experts", icon: Search },
-    { name: "Post Project", path: "/projects/new", icon: FolderPlus },
-    { name: "My Projects", path: "/projects", icon: Folder },
-    { name: "Messages", path: "/messages", icon: MessageSquare },
+    {
+      name: "Post Project",
+      path: "/dashboard/projects/create",
+      icon: FolderPlus,
+    },
+    // { name: "My Projects", path: "/dashboard/my-projects", icon: Folder },
+    { name: "Messages", path: "/dashboard/chats", icon: MessageSquare },
   ];
 
   const menuItems = role === "business" ? businessMenu : expertMenu;
@@ -163,9 +171,9 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
             const Icon = item.icon;
 
             return (
-              <Link
+              <button
                 key={item.path}
-                href={item.path}
+                onClick={() => router.push(item.path)}
                 className={`flex items-center px-3 py-2.5 rounded-lg transition
                 ${
                   isActive(item.path)
@@ -176,7 +184,7 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
               >
                 <Icon size={20} />
                 {isOpen && <span>{item.name}</span>}
-              </Link>
+              </button>
             );
           })}
         </nav>
@@ -235,14 +243,14 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
             const Icon = item.icon;
 
             return (
-              <Link key={item.path} href={item.path}>
+              <button key={item.path} onClick={() => router.push(item.path)}>
                 <Icon
                   size={26}
                   className={
                     isActive(item.path) ? "text-blue-600" : "text-gray-500"
                   }
                 />
-              </Link>
+              </button>
             );
           })}
 

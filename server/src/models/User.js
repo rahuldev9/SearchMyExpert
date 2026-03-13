@@ -1,11 +1,54 @@
 const mongoose = require("mongoose");
 
+const reviewSchema = new mongoose.Schema({
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+  },
+
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5,
+  },
+
+  comment: String,
+
+  businessId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  businessTotalProjects: {
+    type: Number,
+    default: 0,
+  },
+
+  businessRating: {
+    type: Number,
+    default: 0,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const userSchema = new mongoose.Schema(
   {
     // ================= BASIC INFO =================
-    name: { type: String, required: true },
 
-    email: { type: String, unique: true, required: true },
+    name: {
+      type: String,
+      required: true,
+    },
+
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
 
     avatar: {
       type: String,
@@ -15,7 +58,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["business", "expert"],
-      default: null,
+      required: true,
     },
 
     provider: {
@@ -32,12 +75,29 @@ const userSchema = new mongoose.Schema(
     },
 
     // ================= COMMON PROFILE =================
-    location: { type: String, default: "" },
-    website: { type: String, default: "" },
-    bio: { type: String, default: "" },
+
+    location: {
+      type: String,
+      default: "",
+    },
+
+    website: {
+      type: String,
+      default: "",
+    },
+
+    bio: {
+      type: String,
+      default: "",
+    },
 
     // ================= EXPERT PROFILE =================
-    skills: [{ type: String }],
+
+    skills: [
+      {
+        type: String,
+      },
+    ],
 
     experience: {
       type: Number,
@@ -49,14 +109,31 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    portfolio: [{ type: String }],
+    portfolio: [
+      {
+        type: String,
+      },
+    ],
 
     // ================= BUSINESS PROFILE =================
-    companyName: { type: String, default: "" },
-    companySize: { type: String, default: "" },
-    industry: { type: String, default: "" },
+
+    companyName: {
+      type: String,
+      default: "",
+    },
+
+    companySize: {
+      type: String,
+      default: "",
+    },
+
+    industry: {
+      type: String,
+      default: "",
+    },
 
     // ================= EXPERT STATS =================
+
     totalProjects: {
       type: Number,
       default: 0,
@@ -72,12 +149,21 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
+    reviews: [reviewSchema],
+
     // ================= PLATFORM =================
+
     isVerified: {
       type: Boolean,
       default: false,
     },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
+
   { timestamps: true },
 );
 

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import DashboardLayout from "@/components/DashboardLayout";
+import NotificationBell from "@/components/NotificationBell";
 
 interface User {
   name: string;
@@ -84,6 +85,7 @@ export default function DashboardPage() {
           <p className="text-gray-500 mt-1">
             Here's what's happening on your dashboard today.
           </p>
+          <NotificationBell />
         </div>
 
         {/* ================= QUICK ACTIONS ================= */}

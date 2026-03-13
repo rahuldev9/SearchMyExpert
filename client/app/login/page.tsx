@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
 import { showToast } from "@/components/Toast";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
-
+import { setCurrentUser } from "@/lib/auth";
 export default function Login() {
   const router = useRouter();
 
@@ -38,6 +38,7 @@ export default function Login() {
 
       showToast(`${res.data.message}`, "success");
       const role = res.data.user.role;
+      setCurrentUser(res.data.user._id);
 
       if (role === "business") {
         router.push("/dashboard/business");

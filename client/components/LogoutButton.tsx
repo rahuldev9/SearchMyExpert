@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import API from "@/lib/api";
 import { showConfirm } from "./ConfirmModal";
+import { removeCurrentUser } from "@/lib/auth";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -15,7 +16,8 @@ export default function LogoutButton() {
 
     if (!ok) return;
     try {
-      await API.post("/auth/logout");
+      const res = await API.post("/auth/logout");
+      removeCurrentUser();
       router.push("/login");
 
       router.refresh(); // refresh middleware state
