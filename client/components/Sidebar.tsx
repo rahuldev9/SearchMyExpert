@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,6 +15,7 @@ import {
   Folder,
   MessageSquare,
   ClipboardList,
+  Bell,
 } from "lucide-react";
 
 import API from "@/lib/api";
@@ -29,25 +30,19 @@ interface User {
 }
 
 interface SidebarProps {
-  autoClose?: boolean;
-  onToggle?: (isOpen: boolean, isMobile: boolean) => void;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<"business" | "expert" | null>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
-
-  const [isOpen, setIsOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const isActive = (path: string) => pathname.startsWith(path);
-
-  const shouldAutoClose = autoClose !== undefined ? autoClose : isMobile;
 
   // ================= FETCH USER =================
 
@@ -65,31 +60,6 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
     fetchUser();
   }, []);
 
-  // ================= RESPONSIVE =================
-
-  useEffect(() => {
-    if (shouldAutoClose) {
-      setIsOpen(false);
-    }
-  }, [pathname, shouldAutoClose]);
-
-  useEffect(() => {
-    const check = () => {
-      const mobile = window.innerWidth < 768;
-
-      setIsMobile(mobile);
-      setIsOpen(!mobile);
-
-      onToggle?.(!mobile, mobile);
-    };
-
-    check();
-
-    window.addEventListener("resize", check);
-
-    return () => window.removeEventListener("resize", check);
-  }, [onToggle]);
-
   // ================= MENUS =================
 
   const expertMenu = [
@@ -97,22 +67,60 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
       name: "Dashboard",
       path: "/dashboard/expert",
       icon: LayoutDashboard,
+      mobile: true,
     },
-    { name: "Requests", path: "/dashboard/my-projects", icon: ClipboardList },
-    { name: "Projects", path: "/dashboard/projects", icon: Folder },
-    { name: "Messages", path: "/dashboard/chats", icon: MessageSquare },
+    {
+      name: "My Projects",
+      path: "/dashboard/my-projects",
+      icon: ClipboardList,
+      mobile: true,
+    },
+    {
+      name: "Projects",
+      path: "/dashboard/projects",
+      icon: Folder,
+      mobile: true,
+    },
+    {
+      name: "Chats",
+      path: "/dashboard/chats",
+      icon: MessageSquare,
+      mobile: true,
+    },
+    {
+      name: "Notifications",
+      path: "/dashboard/notifications",
+      icon: Bell,
+      mobile: false,
+    },
   ];
 
   const businessMenu = [
-    { name: "Dashboard", path: "/dashboard/business", icon: LayoutDashboard },
-    { name: "Search Experts", path: "/experts", icon: Search },
+    {
+      name: "Dashboard",
+      path: "/dashboard/business",
+      icon: LayoutDashboard,
+      mobile: true,
+    },
+    { name: "Search Experts", path: "/experts", icon: Search, mobile: true },
     {
       name: "Post Project",
       path: "/dashboard/projects/create",
       icon: FolderPlus,
+      mobile: true,
     },
-    // { name: "My Projects", path: "/dashboard/my-projects", icon: Folder },
-    { name: "Messages", path: "/dashboard/chats", icon: MessageSquare },
+    {
+      name: "Chats",
+      path: "/dashboard/chats",
+      icon: MessageSquare,
+      mobile: true,
+    },
+    {
+      name: "Notifications",
+      path: "/dashboard/notifications",
+      icon: Bell,
+      mobile: false,
+    },
   ];
 
   const menuItems = role === "business" ? businessMenu : expertMenu;
@@ -122,7 +130,6 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
   const handleLogout = async () => {
     try {
       await API.post("/auth/logout");
-
       router.push("/login");
       router.refresh();
     } catch (error) {
@@ -134,13 +141,12 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
     <>
       {/* ================= DESKTOP SIDEBAR ================= */}
 
-      <aside
-        className={`hidden md:flex fixed top-0 left-0 h-screen bg-white border-r border-gray-200 flex-col transition-all duration-300 z-40
-        ${isOpen ? "w-64" : "w-20"}`}
-      >
+      <aside className="hidden md:flex h-full flex-col">
         {/* Header */}
 
-        <div className="p-5 flex items-center justify-between">
+        <div
+          className={`p-5 flex items-center ${isOpen ? "justify-around" : "justify-center"}`}
+        >
           <Link href="/dashboard">
             {isOpen && (
               <span className="text-lg font-semibold text-gray-800">
@@ -149,20 +155,10 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
             )}
           </Link>
 
-          {isOpen && (
-            <button onClick={() => setIsOpen(false)}>
-              <PanelRightOpen size={20} />
-            </button>
-          )}
+          <button onClick={onToggle}>
+            {isOpen ? <PanelRightOpen size={20} /> : <Menu size={20} />}
+          </button>
         </div>
-
-        {!isOpen && (
-          <div className="flex justify-center pb-3">
-            <button onClick={() => setIsOpen(true)}>
-              <Menu size={20} />
-            </button>
-          </div>
-        )}
 
         {/* Navigation */}
 
@@ -174,7 +170,7 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
               <button
                 key={item.path}
                 onClick={() => router.push(item.path)}
-                className={`flex items-center px-3 py-2.5 rounded-lg transition
+                className={`flex w-full items-center px-3 py-2.5 rounded-lg transition
                 ${
                   isActive(item.path)
                     ? "bg-blue-600 text-white"
@@ -191,7 +187,7 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
 
         {/* Profile */}
 
-        <div className="p-4 border-t border-gray-200 relative" ref={profileRef}>
+        <div className="p-4 border-t border-gray-200 relative">
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className={`flex items-center w-full gap-3 p-2 rounded-lg hover:bg-gray-100
@@ -201,7 +197,7 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
               {user?.avatar ? (
                 <img
                   src={`${process.env.NEXT_PUBLIC_BACKEND_API}${user.avatar}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 user?.name?.charAt(0).toUpperCase()
@@ -235,33 +231,51 @@ export default function Sidebar({ onToggle, autoClose }: SidebarProps) {
         </div>
       </aside>
 
-      {/* ================= MOBILE NAV ================= */}
+      {/* ================= MOBILE BOTTOM NAV ================= */}
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="flex justify-around items-center py-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
+        <div className="flex justify-around items-center py-2">
+          {menuItems
+            .filter((item) => item.mobile !== false)
+            .map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <button key={item.path} onClick={() => router.push(item.path)}>
-                <Icon
-                  size={26}
-                  className={
-                    isActive(item.path) ? "text-blue-600" : "text-gray-500"
-                  }
-                />
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => router.push(item.path)}
+                  className="flex flex-col items-center gap-1 text-xs"
+                >
+                  <Icon
+                    size={22}
+                    className={
+                      isActive(item.path) ? "text-blue-600" : "text-gray-500"
+                    }
+                  />
+                  <span
+                    className={
+                      isActive(item.path) ? "text-blue-600" : "text-gray-500"
+                    }
+                  >
+                    {item.name.split(" ")[0]}
+                  </span>
+                </button>
+              );
+            })}
 
-          <button onClick={() => router.push("/settings")}>
+          {/* Profile */}
+          <button
+            onClick={() => router.push("/settings")}
+            className="flex flex-col items-center gap-1 text-xs"
+          >
             {user ? (
-              <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
             ) : (
-              <User size={26} className="text-gray-500" />
+              <User size={22} className="text-gray-500" />
             )}
+            <span className="text-gray-500">Profile</span>
           </button>
         </div>
       </div>

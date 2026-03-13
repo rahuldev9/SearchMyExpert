@@ -5,6 +5,19 @@ import { useParams } from "next/navigation";
 import API from "@/lib/api";
 import Navbar from "@/components/Navbar";
 
+type Review = {
+  _id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
+
+type Project = {
+  _id: string;
+  title: string;
+  description: string;
+};
+
 type User = {
   _id: string;
   name?: string;
@@ -14,13 +27,15 @@ type User = {
   location?: string;
   skills?: string[];
   experience?: number;
-  hourlyRate?: number;
+  hourlyRate?: number | null;
   rating?: number;
   totalProjects?: number;
   totalReviews?: number;
+  completedProjects?: number;
   website?: string;
   companyName?: string;
   industry?: string;
+  reviews?: Review[];
 };
 
 export default function ProfilePage() {
@@ -28,17 +43,19 @@ export default function ProfilePage() {
   const userId = params?.userId as string;
 
   const [user, setUser] = useState<User | null>(null);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
     try {
       const res = await API.get(`/auth/profile/${userId}`);
 
-      setUser(res.data.user);
+      const userData = res.data.user;
+
+      setUser(userData);
       setProjects(res.data.projects || []);
-      setReviews(res.data.reviews || []);
+      setReviews(userData.reviews || []);
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -61,6 +78,7 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar />
+
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* PROFILE CARD */}
         <div className="bg-white shadow rounded-xl p-6">
@@ -75,27 +93,40 @@ export default function ProfilePage() {
 
             <div>
               <h1 className="text-xl font-bold">{user.name}</h1>
-              <p className="text-gray-500">{user.location}</p>
+              <p className="text-gray-500">{user.location || "No location"}</p>
+              <p className="text-sm text-gray-400">{user.email}</p>
             </div>
           </div>
 
-          <p className="text-gray-700 mb-4">{user.bio}</p>
+          <p className="text-gray-700 mb-4">{user.bio || "No bio added yet"}</p>
+
+          {user.website && (
+            <p className="text-blue-500 text-sm mb-4">
+              Website: {user.website}
+            </p>
+          )}
 
           {/* SKILLS */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {user.skills?.map((skill, i) => (
-              <span key={i} className="text-sm bg-gray-100 px-3 py-1 rounded">
-                {skill}
-              </span>
-            ))}
-          </div>
+          {user.skills && user.skills.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {user.skills.map((skill, i) => (
+                <span key={i} className="text-sm bg-gray-100 px-3 py-1 rounded">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* STATS */}
           <div className="flex gap-6 text-sm text-gray-600 flex-wrap">
-            <span>⭐ {user.rating}</span>
-            <span>{user.totalProjects} Projects</span>
-            <span>{user.totalReviews} Reviews</span>
-            <span className="font-semibold">${user.hourlyRate}/hr</span>
+            <span>⭐ {user.rating || 0}</span>
+            <span>{user.totalProjects || 0} Projects</span>
+            <span>{user.completedProjects || 0} Completed</span>
+            <span>{user.totalReviews || 0} Reviews</span>
+
+            {user.hourlyRate && (
+              <span className="font-semibold">${user.hourlyRate}/hr</span>
+            )}
           </div>
         </div>
 
@@ -107,7 +138,7 @@ export default function ProfilePage() {
             <p className="text-gray-500">No projects yet</p>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
-              {projects.map((project: any) => (
+              {projects.map((project) => (
                 <div key={project._id} className="border rounded-lg p-4">
                   <h3 className="font-semibold">{project.title}</h3>
                   <p className="text-sm text-gray-600">{project.description}</p>
@@ -125,12 +156,19 @@ export default function ProfilePage() {
             <p className="text-gray-500">No reviews yet</p>
           ) : (
             <div className="space-y-3">
-              {reviews.map((review: any) => (
+              {reviews.map((review) => (
                 <div key={review._id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-yellow-500 font-medium">
+                      {"⭐".repeat(review.rating)}
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+
                   <p className="text-sm text-gray-700">{review.comment}</p>
-                  <span className="text-xs text-gray-500">
-                    ⭐ {review.rating}
-                  </span>
                 </div>
               ))}
             </div>

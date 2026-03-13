@@ -5,33 +5,30 @@ import Sidebar from "@/components/Sidebar";
 
 interface DashboardLayoutProps {
   children?: ReactNode;
-
+  activePage?: string;
   autoClose?: boolean;
   showSidebar?: boolean;
-  onSidebarOpen?: (isOpen: true) => void;
+  onSidebarOpen?: (isOpen: boolean) => void;
 }
 
 export default function DashboardLayout({
   children,
-
+  activePage,
   autoClose,
   onSidebarOpen,
   showSidebar = true,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [shouldAutoClose, setShouldAutoClose] = useState(false);
 
-  // Notify parent when sidebar opens
+  // Notify parent when sidebar changes
   useEffect(() => {
-    if (sidebarOpen) {
-      onSidebarOpen?.(true);
-    }
+    onSidebarOpen?.(sidebarOpen);
   }, [sidebarOpen, onSidebarOpen]);
 
-  // Handle autoClose correctly
+  // Auto close if required
   useEffect(() => {
     if (autoClose) {
-      setShouldAutoClose(true);
+      setSidebarOpen(false);
     }
   }, [autoClose]);
 
@@ -40,25 +37,33 @@ export default function DashboardLayout({
       {/* Desktop Sidebar */}
       {showSidebar && (
         <div
-          className={`hidden md:block h-full border-r border-slate-200/60 bg-white/50 backdrop-blur-xl z-30 transition-all duration-300 ${
+          className={`hidden md:flex flex-col h-full border-r border-slate-200 bg-white transition-all duration-300 ${
             sidebarOpen ? "w-64" : "w-20"
           }`}
         >
-          <Sidebar onToggle={setSidebarOpen} autoClose={shouldAutoClose} />
+          <Sidebar
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen((prev) => !prev)}
+            // activePage={activePage}
+          />
         </div>
       )}
 
       {/* Mobile Sidebar */}
       {showSidebar && (
         <div className="md:hidden">
-          <Sidebar />
+          <Sidebar
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen((prev) => !prev)}
+            // activePage={activePage}
+          />
         </div>
       )}
 
-      {/* Main Content (always full width when sidebar hidden) */}
-      <div className="flex-1 flex flex-col h-full overflow-auto pt-4 lg:pt-4 pb-14">
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-full overflow-y-auto transition-all duration-300">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

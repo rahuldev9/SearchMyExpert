@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import API from "@/lib/api";
 import { io } from "socket.io-client";
+import { motion } from "framer-motion";
+import DashboardLayout from "@/components/DashboardLayout";
+import { getCurrentUser } from "@/lib/auth";
 
 const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
@@ -10,14 +13,13 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const currentUser = getCurrentUser();
 
   useEffect(() => {
     fetchMessages();
 
-    /* join socket room */
     socket.emit("joinProject", projectId);
 
-    /* receive messages */
     socket.on("receiveMessage", (message) => {
       setMessages((prev) => [...prev, message]);
     });
@@ -43,10 +45,22 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
   async function sendMessage() {
     if (!text.trim()) return;
 
+    const newMessage = {
+      projectId,
+      message: text,
+      senderId: currentUser._id,
+      senderName: currentUser.name,
+      createdAt: new Date(),
+    };
+
     try {
       await API.post(`/chat/${projectId}`, {
         message: text,
       });
+
+      socket.emit("sendMessage", newMessage);
+
+      setMessages((prev) => [...prev, newMessage]);
 
       setText("");
     } catch (error) {
@@ -59,44 +73,94 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="bg-gray-800 p-4 rounded-lg flex flex-col h-[420px]">
-      <h2 className="text-white font-semibold mb-3">Project Chat</h2>
+    <DashboardLayout>
+      <div className="flex flex-col h-[500px] bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden m-2">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-white">
+          <h2 className="text-lg font-semibold text-gray-800">Project Chat</h2>
+        </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto mb-4 space-y-2">
-        {messages.length === 0 && (
-          <p className="text-gray-400 text-sm">No messages yet</p>
-        )}
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-gray-50">
+          {messages.length === 0 && (
+            <p className="text-gray-400 text-sm text-center mt-10">
+              Start the conversation
+            </p>
+          )}
 
-        {messages.map((m, i) => (
-          <div key={m._id || i} className="text-sm">
-            <span className="text-blue-400 font-semibold">
-              {m.senderId?.name || "User"}:
-            </span>{" "}
-            <span className="text-gray-200">{m.message}</span>
-          </div>
-        ))}
+          {messages.map((m, i) => {
+            const senderId =
+              typeof m.senderId === "object" ? m.senderId._id : m.senderId;
 
-        <div ref={bottomRef} />
+            const isMe = senderId === currentUser?.id;
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+              >
+                <div className="max-w-[70%]">
+                  {!isMe && (
+                    <p className="text-xs text-gray-500 mb-1">
+                      {m.senderId?.name || m.senderName || "User"}
+                    </p>
+                  )}
+
+                  <div
+                    className={`px-4 py-2 rounded-2xl text-sm shadow ${
+                      isMe
+                        ? "bg-blue-500 text-white rounded-br-sm"
+                        : "bg-white border border-gray-200 text-gray-800 rounded-bl-sm"
+                    }`}
+                  >
+                    {m.message}
+                  </div>
+
+                  <p
+                    className={`text-[10px] mt-1 ${
+                      isMe
+                        ? "text-right text-gray-300"
+                        : "text-left text-gray-400"
+                    }`}
+                  >
+                    {m.createdAt
+                      ? new Date(m.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : ""}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input */}
+        <div className="p-4 flex gap-3 items-center border-t bg-white">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
+            }}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-full outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          <button
+            onClick={sendMessage}
+            className="px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full"
+          >
+            Send
+          </button>
+        </div>
       </div>
-
-      {/* Input */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Type a message..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="flex-1 p-2 rounded bg-gray-700 text-white outline-none"
-        />
-
-        <button
-          onClick={sendMessage}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
-        >
-          Send
-        </button>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -11,6 +11,7 @@ export default function Navbar() {
   const [token, setToken] = useState<string | undefined>();
   const [role, setRole] = useState<string | undefined>();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -19,11 +20,9 @@ export default function Navbar() {
     const savedToken = Cookies.get("token");
     const savedRole = Cookies.get("role");
 
-    console.log("Token:", savedToken);
-    console.log("Role:", savedRole);
-
     setToken(savedToken);
     setRole(savedRole);
+    setLoading(false);
 
     if (savedToken && savedRole && pathname === "/login") {
       router.push(
@@ -40,28 +39,23 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-lg bg-white/80 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo */}
         <Logo />
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 font-medium">
-          <Link
-            href="/experts"
-            className="text-gray-600 hover:text-blue-500 transition"
-          >
-            Find Experts
-          </Link>
+          {/* Loader while reading cookies */}
+          {loading && (
+            <div className="w-28 h-10 rounded-xl bg-gray-200 animate-pulse"></div>
+          )}
 
-          {token && role && !isDashboardPage ? (
-            <>
-              <Link
-                href={dashboardLink}
-                className="bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-600 transition"
-              >
-                Dashboard
-              </Link>
-            </>
-          ) : !token ? (
+          {!loading && role && !isDashboardPage ? (
+            <Link
+              href={dashboardLink}
+              className="bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-600 transition"
+            >
+              Dashboard
+            </Link>
+          ) : !loading && !token ? (
             <>
               <Link
                 href="/login"
@@ -97,28 +91,22 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white border-t"
+            className="md:hidden bg-white border-none"
           >
             <div className="flex flex-col px-6 py-6 gap-4 font-medium">
-              <Link
-                href="/experts"
-                className="text-gray-700 hover:text-blue-500 transition"
-                onClick={() => setMobileOpen(false)}
-              >
-                Find Experts
-              </Link>
+              {loading && (
+                <div className="w-full h-12 rounded-xl bg-gray-200 animate-pulse"></div>
+              )}
 
-              {token && role && !isDashboardPage ? (
-                <>
-                  <Link
-                    href={dashboardLink}
-                    onClick={() => setMobileOpen(false)}
-                    className="bg-blue-500 text-white px-4 py-3 rounded-xl text-center shadow hover:bg-blue-600 transition"
-                  >
-                    Dashboard
-                  </Link>
-                </>
-              ) : !token ? (
+              {!loading && role && !isDashboardPage ? (
+                <Link
+                  href={dashboardLink}
+                  onClick={() => setMobileOpen(false)}
+                  className="bg-blue-500 text-white px-4 py-3 rounded-xl text-center shadow hover:bg-blue-600 transition"
+                >
+                  Dashboard
+                </Link>
+              ) : !loading && !token ? (
                 <>
                   <Link
                     href="/login"

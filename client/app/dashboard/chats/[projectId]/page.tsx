@@ -7,8 +7,10 @@ export default function ChatPage() {
   const params = useParams();
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <ProjectChat projectId={params.projectId as string} />
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center ">
+      <div className="w-full">
+        <ProjectChat projectId={params.projectId as string} />
+      </div>
     </div>
   );
 }

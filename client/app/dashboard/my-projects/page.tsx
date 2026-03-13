@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import DashboardLayout from "@/components/DashboardLayout";
 import API from "@/lib/api";
 import Cookies from "js-cookie";
+import { motion } from "framer-motion";
 
 export default function MyProjects() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -92,123 +94,160 @@ export default function MyProjects() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        Loading projects...
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <p className="text-gray-600 text-lg">Loading projects...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-10">
-      <h1 className="text-3xl font-bold mb-6">My Projects</h1>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">My Projects</h1>
 
-      <div className="grid gap-6">
-        {projects.map((project) => (
-          <div
-            key={project._id}
-            className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-xl"
-          >
-            <h2 className="text-xl font-semibold">{project.title}</h2>
-
-            <p className="text-gray-300 mt-2">{project.description}</p>
-
-            <p className="text-blue-400 mt-2">Budget: ${project.budget}</p>
-
-            <p className="text-purple-400 mt-1">Status: {project.status}</p>
-
-            {/* Expert Button */}
-            {role === "expert" && project.status === "IN_PROGRESS" && (
-              <button
-                onClick={() => completeProject(project._id)}
-                className="mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg"
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => (
+              <motion.div
+                key={project._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition"
               >
-                Mark as Completed
-              </button>
-            )}
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {project.title}
+                </h2>
 
-            {/* Business Buttons */}
-            {role === "business" && project.status === "COMPLETED" && (
-              <div className="flex gap-3 mt-3">
-                <button
-                  onClick={() => {
-                    setClosingProject(false);
-                    setReviewProjectId(project._id);
-                  }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
+                <p className="text-gray-600 mt-2 line-clamp-3">
+                  {project.description}
+                </p>
+
+                <p className="text-blue-600 font-medium mt-3">
+                  Budget: ${project.budget}
+                </p>
+
+                <span
+                  className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full
+                ${
+                  project.status === "IN_PROGRESS"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : project.status === "COMPLETED"
+                      ? "bg-green-100 text-green-700"
+                      : project.status === "CLOSED"
+                        ? "bg-gray-200 text-gray-700"
+                        : "bg-blue-100 text-blue-700"
+                }`}
                 >
-                  Leave Review
-                </button>
+                  {project.status}
+                </span>
 
-                <button
-                  onClick={() => {
-                    setClosingProject(true);
-                    setReviewProjectId(project._id);
-                  }}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
+                {/* Expert Button */}
+                {role === "expert" && project.status === "IN_PROGRESS" && (
+                  <button
+                    onClick={() => completeProject(project._id)}
+                    className="mt-4 w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
+                  >
+                    Mark as Completed
+                  </button>
+                )}
+
+                {/* Business Buttons */}
+                {role === "business" && project.status === "COMPLETED" && (
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => {
+                        setClosingProject(false);
+                        setReviewProjectId(project._id);
+                      }}
+                      className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                    >
+                      Leave Review
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setClosingProject(true);
+                        setReviewProjectId(project._id);
+                      }}
+                      className="flex-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+
+                <Link
+                  href={`/dashboard/projects/${project._id}`}
+                  className="inline-block mt-4 text-blue-500 hover:text-blue-600 font-medium"
                 >
-                  Close Project
-                </button>
-              </div>
-            )}
-
-            <Link
-              href={`/dashboard/projects/${project._id}`}
-              className="inline-block mt-4 text-blue-400 hover:text-blue-300"
-            >
-              View Details →
-            </Link>
-          </div>
-        ))}
-      </div>
-
-      {/* REVIEW MODAL */}
-      {reviewProjectId && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
-          <div className="bg-gray-900 p-6 rounded-lg w-[400px] border border-white/10">
-            <h2 className="text-xl font-semibold mb-4">Leave a Review</h2>
-
-            <label className="block mb-2">Rating</label>
-            <select
-              value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="w-full p-2 bg-gray-800 rounded mb-4"
-            >
-              {[5, 4, 3, 2, 1].map((r) => (
-                <option key={r} value={r}>
-                  {r} ⭐
-                </option>
-              ))}
-            </select>
-
-            <label className="block mb-2">Comment</label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full p-2 bg-gray-800 rounded mb-4"
-              placeholder="Write your review..."
-            />
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setReviewProjectId(null);
-                  setClosingProject(false);
-                }}
-                className="px-4 py-2 bg-gray-600 rounded"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={submitReview}
-                className="px-4 py-2 bg-blue-600 rounded"
-              >
-                Submit Review
-              </button>
-            </div>
+                  View Details →
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
-      )}
-    </div>
+
+        {/* REVIEW MODAL */}
+        {reviewProjectId && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Leave a Review
+              </h2>
+
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Rating
+              </label>
+
+              <select
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                {[5, 4, 3, 2, 1].map((r) => (
+                  <option key={r} value={r}>
+                    {r} ⭐
+                  </option>
+                ))}
+              </select>
+
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Comment
+              </label>
+
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write your review..."
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setReviewProjectId(null);
+                    setClosingProject(false);
+                  }}
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={submitReview}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                >
+                  Submit Review
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
   );
 }
