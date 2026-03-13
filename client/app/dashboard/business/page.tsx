@@ -11,6 +11,8 @@ import {
   Folder,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { setCurrentUser } from "@/lib/auth";
+import NotificationBell from "@/components/NotificationBell";
 
 interface User {
   name: string;
@@ -22,8 +24,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const data = await getUserProfile();
-      setUser(data);
+      try {
+        const data = await getUserProfile();
+
+        setUser(data);
+
+        // Save user to localStorage
+        setCurrentUser({
+          id: data._id,
+          name: data.name,
+          email: data.email,
+        });
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+      }
     };
 
     fetchUser();
@@ -83,6 +97,7 @@ export default function DashboardPage() {
           <p className="text-gray-500 mt-1">
             Here's what's happening on your dashboard today.
           </p>
+          <NotificationBell />
         </div>
 
         {/* ================= QUICK ACTIONS ================= */}

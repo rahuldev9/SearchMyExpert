@@ -819,11 +819,11 @@ exports.googleLogin = async (req, res) => {
     let redirectPath = "/select-role";
 
     if (user.role === "business") {
-      redirectPath = "/dashboard/business";
+      redirectPath = "/dashboard";
     }
 
     if (user.role === "expert") {
-      redirectPath = "/dashboard/expert";
+      redirectPath = "/dashboard";
     }
 
     return res.redirect(`${process.env.CLIENT_URL}${redirectPath}`);

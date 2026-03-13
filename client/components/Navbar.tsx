@@ -4,6 +4,7 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import Logo from "./Logo";
 
 export default function Navbar() {
@@ -14,22 +15,22 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Load token + role from cookies
   useEffect(() => {
     const savedToken = Cookies.get("token");
     const savedRole = Cookies.get("role");
 
+    console.log("Token:", savedToken);
+    console.log("Role:", savedRole);
+
     setToken(savedToken);
     setRole(savedRole);
-  }, []);
 
-  const logout = () => {
-    Cookies.remove("token");
-    Cookies.remove("role");
-    setToken(undefined);
-    setRole(undefined);
-    router.push("/login");
-  };
+    if (savedToken && savedRole && pathname === "/login") {
+      router.push(
+        savedRole === "business" ? "/dashboard/business" : "/dashboard/expert",
+      );
+    }
+  }, [pathname]);
 
   const dashboardLink =
     role === "business" ? "/dashboard/business" : "/dashboard/expert";
@@ -37,48 +38,41 @@ export default function Navbar() {
   const isDashboardPage = pathname.startsWith("/dashboard");
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 backdrop-blur-lg bg-white/80 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Logo />
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-8 font-medium">
           <Link
             href="/experts"
-            className="text-gray-600 hover:text-blue-600 transition"
+            className="text-gray-600 hover:text-blue-500 transition"
           >
             Find Experts
           </Link>
 
-          {token && !isDashboardPage ? (
+          {token && role && !isDashboardPage ? (
             <>
               <Link
                 href={dashboardLink}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-600 transition"
               >
                 Dashboard
               </Link>
-
-              {/* <button
-                onClick={logout}
-                className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-              >
-                Logout
-              </button> */}
             </>
           ) : !token ? (
             <>
               <Link
                 href="/login"
-                className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+                className="px-5 py-2.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition"
               >
                 Login
               </Link>
 
               <Link
                 href="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="bg-blue-500 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-600 transition"
               >
                 Sign Up
               </Link>
@@ -89,56 +83,64 @@ export default function Navbar() {
         {/* Mobile Button */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-gray-700"
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-gray-100 transition"
         >
-          ☰
+          <span className="text-xl">☰</span>
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white">
-          <div className="flex flex-col px-6 py-4 gap-4">
-            <Link href="/experts" className="text-gray-700">
-              Find Experts
-            </Link>
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white border-t"
+          >
+            <div className="flex flex-col px-6 py-6 gap-4 font-medium">
+              <Link
+                href="/experts"
+                className="text-gray-700 hover:text-blue-500 transition"
+                onClick={() => setMobileOpen(false)}
+              >
+                Find Experts
+              </Link>
 
-            {token && !isDashboardPage ? (
-              <>
-                <Link
-                  href={dashboardLink}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-center"
-                >
-                  Dashboard
-                </Link>
+              {token && role && !isDashboardPage ? (
+                <>
+                  <Link
+                    href={dashboardLink}
+                    onClick={() => setMobileOpen(false)}
+                    className="bg-blue-500 text-white px-4 py-3 rounded-xl text-center shadow hover:bg-blue-600 transition"
+                  >
+                    Dashboard
+                  </Link>
+                </>
+              ) : !token ? (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="border border-gray-200 px-4 py-3 rounded-xl text-center hover:bg-gray-100 transition"
+                  >
+                    Login
+                  </Link>
 
-                {/* <button
-                  onClick={logout}
-                  className="border px-4 py-2 rounded-lg"
-                >
-                  Logout
-                </button> */}
-              </>
-            ) : !token ? (
-              <>
-                <Link
-                  href="/login"
-                  className="border px-4 py-2 rounded-lg text-center"
-                >
-                  Login
-                </Link>
-
-                <Link
-                  href="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-center"
-                >
-                  Sign Up
-                </Link>
-              </>
-            ) : null}
-          </div>
-        </div>
-      )}
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="bg-blue-500 text-white px-4 py-3 rounded-xl text-center shadow hover:bg-blue-600 transition"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              ) : null}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
