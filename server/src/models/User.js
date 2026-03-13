@@ -58,7 +58,6 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["business", "expert"],
-      required: true,
     },
 
     provider: {
@@ -138,6 +137,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    activeProjects: {
+      type: Number,
+      default: 0,
+    },
+
+    completedProjects: {
+      type: Number,
+      default: 0,
+    },
 
     rating: {
       type: Number,
@@ -161,6 +169,13 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+
+    resetPasswordExpire: {
+      type: Date,
     },
   },
 

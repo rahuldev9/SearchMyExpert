@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import API from "@/lib/api";
+import { Bell } from "lucide-react";
 
 export default function NotificationBell() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function NotificationBell() {
       onClick={() => router.push("/dashboard/notifications")}
       className="relative cursor-pointer"
     >
-      🔔
+      <Bell />
       {count > 0 && (
         <span className="absolute -top-2 -right-2 bg-red-600 text-xs px-2 rounded-full">
           {count}

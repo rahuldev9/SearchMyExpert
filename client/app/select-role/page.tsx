@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import API from "@/lib/api";
+import { motion } from "framer-motion";
 
 export default function SelectRole() {
   const router = useRouter();
@@ -17,24 +18,45 @@ export default function SelectRole() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-10 rounded-xl shadow w-96 text-center">
-        <h1 className="text-2xl font-bold mb-6">Choose Account Type</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-white/80 backdrop-blur-xl border border-gray-200 rounded-3xl shadow-xl p-8 text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Choose Account Type
+          </h1>
 
-        <button
-          onClick={() => setRole("business")}
-          className="w-full mb-4 bg-blue-600 text-white py-3 rounded"
-        >
-          I want to hire experts
-        </button>
+          <p className="text-gray-500 text-sm mt-2">
+            Select how you want to use the platform
+          </p>
 
-        <button
-          onClick={() => setRole("expert")}
-          className="w-full bg-green-600 text-white py-3 rounded"
-        >
-          I want to work as expert
-        </button>
-      </div>
+          <div className="mt-8 space-y-4">
+            {/* Business */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setRole("business")}
+              className="w-full py-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold shadow-md transition"
+            >
+              I want to hire experts
+            </motion.button>
+
+            {/* Expert */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setRole("expert")}
+              className="w-full py-4 rounded-xl border border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold transition"
+            >
+              I want to work as expert
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

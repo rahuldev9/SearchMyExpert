@@ -17,25 +17,32 @@ exports.getPublicProfile = async (req, res) => {
     let projects = [];
     let reviews = [];
 
+    // EXPERT PROFILE
     if (user.role === "EXPERT") {
       projects = await Project.find({
         selectedExpert: userId,
-        status: "COMPLETED",
-      }).select("title budget");
+        status: { $in: ["COMPLETED", "CLOSED"] }, // check both
+      }).select("title budget status");
 
       reviews = await Review.find({
         expertId: userId,
-      }).populate("businessId", "name");
+      })
+        .populate("businessId", "name avatar")
+        .populate("projectId", "title budget status");
     }
 
+    // BUSINESS PROFILE
     if (user.role === "BUSINESS") {
       projects = await Project.find({
         businessId: userId,
+        status: { $in: ["COMPLETED", "CLOSED"] }, // optional but recommended
       }).select("title status budget");
 
       reviews = await Review.find({
         businessId: userId,
-      }).populate("expertId", "name");
+      })
+        .populate("expertId", "name avatar")
+        .populate("projectId", "title budget status");
     }
 
     res.json({

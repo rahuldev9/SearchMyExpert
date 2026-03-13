@@ -6,8 +6,10 @@ import Search from "@/components/SearchBar";
 import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import Experts from "@/components/Expert";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div>
       <Navbar />
@@ -229,7 +231,10 @@ export default function Home() {
           Connect with expert automation engineers and build workflows that save
           time and increase productivity.{" "}
         </p>{" "}
-        <button className="bg-white text-blue-500 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition">
+        <button
+          onClick={() => router.push("/experts")}
+          className="bg-white text-blue-500 px-8 py-3 rounded-xl font-semibold hover:bg-gray-100 transition"
+        >
           {" "}
           Find Experts{" "}
         </button>{" "}

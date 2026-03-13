@@ -124,6 +124,17 @@ exports.acceptExpert = async (req, res) => {
     });
 
     await project.save();
+    await Promise.all([
+      // update business stats
+      User.findByIdAndUpdate(project.businessId, {
+        $inc: { activeProjects: 1 },
+      }),
+
+      // update selected expert stats
+      User.findByIdAndUpdate(expertId, {
+        $inc: { activeProjects: 1 },
+      }),
+    ]);
 
     // send notification
     await Notification.create({
@@ -149,42 +160,12 @@ exports.getExpertProjects = async (req, res) => {
 
     const projects = await Project.find({
       selectedExpert: expertId,
-      status: { $in: ["IN_PROGRESS", "COMPLETED"] },
+      status: { $in: ["IN_PROGRESS", "COMPLETED", "CLOSED"] },
     }).populate("businessId", "name email");
 
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-};
-exports.completeProject = async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id);
-
-    if (!project) {
-      return res.status(404).json({
-        message: "Project not found",
-      });
-    }
-
-    project.status = "COMPLETED";
-
-    await project.save();
-
-    await Notification.create({
-      senderId: req.user.id,
-      receiverId: project.businessId,
-      type: "APPLICATION_ACCEPTED", // or PROJECT_COMPLETED if you add enum
-      title: "Project Completed",
-      message: "The project has been marked as completed",
-      projectId: project._id,
-    });
-
-    res.json(project);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
   }
 };
 
@@ -226,6 +207,7 @@ exports.updateProject = async (req, res) => {
     });
   }
 };
+
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find()
@@ -383,16 +365,45 @@ exports.completeProject = async (req, res) => {
       });
     }
 
+    if (project.status === "COMPLETED") {
+      return res.status(400).json({
+        message: "Project already completed",
+      });
+    }
+
     project.status = "COMPLETED";
     await project.save();
-    
+
+    await Promise.all([
+      User.findByIdAndUpdate(project.businessId, {
+        $inc: {
+          completedProjects: 1,
+          activeProjects: -1,
+        },
+      }),
+      User.findByIdAndUpdate(req.user.id, {
+        $inc: {
+          completedProjects: 1,
+          activeProjects: -1,
+        },
+      }),
+    ]);
+
+    await Promise.all([
+      User.findByIdAndUpdate(project.businessId, {
+        $inc: { totalProjects: 1 },
+      }),
+      User.findByIdAndUpdate(req.user.id, {
+        $inc: { totalProjects: 1 },
+      }),
+    ]);
 
     await Notification.create({
       senderId: req.user.id,
       receiverId: project.businessId,
-      type: "PROJECT_COMPLETED",
+      type: "APPLICATION_ACCEPTED",
       title: "Project Completed",
-      message: "The expert marked the project as completed.",
+      message: "The project has been marked as completed",
       projectId: project._id,
     });
 

@@ -107,7 +107,6 @@ export default function SettingsPage() {
     const confirmDelete = confirm(
       "Are you sure you want to delete your account?",
     );
-
     if (!confirmDelete) return;
 
     try {
@@ -116,7 +115,7 @@ export default function SettingsPage() {
       localStorage.removeItem("token");
 
       showToast("Account deleted", "success");
-
+      localStorage.removeItem("user");
       window.location.href = "/";
     } catch {
       showToast("Failed to delete account", "error");

@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { getUserProfile } from "@/contexts/AuthDetails";
-import Link from "next/link";
-import {
-  FolderPlus,
-  Search,
-  MessageSquare,
-  ClipboardList,
-  Folder,
-} from "lucide-react";
-import Sidebar from "@/components/Sidebar";
 import DashboardLayout from "@/components/DashboardLayout";
-import NotificationBell from "@/components/NotificationBell";
+import { setCurrentUser } from "@/lib/auth";
+
+import WelcomeCard from "../components/WelcomeCard";
+import QuickActions from "../components/QuickActions";
+import StatsCards from "../components/StatsCards";
+import MatchAI from "../components/MatchAI";
+import TodoList from "../components/TodoList";
+import RecentActivity from "../components/RecentActivity";
 
 interface User {
+  _id: string;
   name: string;
+  email: string;
   role?: "business" | "expert";
 }
 
@@ -24,139 +24,46 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const data = await getUserProfile();
-      setUser(data);
+      try {
+        const data = await getUserProfile();
+
+        setUser(data);
+
+        setCurrentUser({
+          id: data._id,
+          name: data.name,
+          email: data.email,
+        });
+      } catch (error) {
+        console.error("Failed to fetch user", error);
+      }
     };
 
     fetchUser();
   }, []);
 
-  const businessActions = [
-    {
-      name: "Search Experts",
-      icon: Search,
-      link: "/experts",
-    },
-    {
-      name: "Post Project",
-      icon: FolderPlus,
-      link: "/projects/new",
-    },
-    {
-      name: "My Projects",
-      icon: Folder,
-      link: "/projects",
-    },
-    {
-      name: "Messages",
-      icon: MessageSquare,
-      link: "/messages",
-    },
-  ];
-
-  const expertActions = [
-    {
-      name: "View Requests",
-      icon: ClipboardList,
-      link: "/requests",
-    },
-    {
-      name: "My Projects",
-      icon: Folder,
-      link: "/projects",
-    },
-    {
-      name: "Messages",
-      icon: MessageSquare,
-      link: "/messages",
-    },
-  ];
-
-  const actions = user?.role === "business" ? businessActions : expertActions;
-
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-10 ">
-        {/* ================= WELCOME ================= */}
+      <div className="p-6 md:p-10 space-y-8">
+        {/* Welcome */}
+        <WelcomeCard name={user?.name || ""} />
 
-        <div className="bg-white rounded-xl p-6 shadow-sm border">
-          <h1 className="text-2xl font-bold">Welcome back, {user?.name} 👋</h1>
+        {/* Quick Actions */}
+        <QuickActions role={user?.role} />
 
-          <p className="text-gray-500 mt-1">
-            Here's what's happening on your dashboard today.
-          </p>
-          <NotificationBell />
-        </div>
+        {/* Stats */}
+        <StatsCards />
 
-        {/* ================= QUICK ACTIONS ================= */}
-
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {actions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <Link
-                  key={action.name}
-                  href={action.link}
-                  className="bg-white border rounded-xl p-4 hover:shadow-md transition flex flex-col items-center text-center gap-2"
-                >
-                  <Icon className="text-blue-600" size={28} />
-
-                  <span className="text-sm font-medium">{action.name}</span>
-                </Link>
-              );
-            })}
+        {/* AI + Todo */}
+        {user && user?.role === "business" && (
+          <div className="grid lg:grid-cols-2 gap-6">
+            <MatchAI />
+            <TodoList />
           </div>
-        </div>
+        )}
 
-        {/* ================= INSIGHTS ================= */}
-
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Insights</h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-gray-500 text-sm">Total Projects</p>
-              <p className="text-2xl font-bold mt-1">12</p>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-gray-500 text-sm">Active Projects</p>
-              <p className="text-2xl font-bold mt-1">5</p>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-gray-500 text-sm">Messages</p>
-              <p className="text-2xl font-bold mt-1">8</p>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-gray-500 text-sm">Completed</p>
-              <p className="text-2xl font-bold mt-1">7</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= RECENT ACTIVITY ================= */}
-
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
-
-          <div className="bg-white border rounded-xl p-4 space-y-4">
-            <div className="text-sm text-gray-600">
-              ✔ Project "Automation Bot" completed
-            </div>
-
-            <div className="text-sm text-gray-600">
-              📩 New message from Client
-            </div>
-
-            <div className="text-sm text-gray-600">📌 New request received</div>
-          </div>
-        </div>
+        {/* Recent Activity */}
+        <RecentActivity />
       </div>
     </DashboardLayout>
   );

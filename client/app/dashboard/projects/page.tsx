@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/lib/auth";
 import API from "@/lib/api";
+import { motion } from "framer-motion";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -23,7 +25,6 @@ export default function ProjectsPage() {
 
       const rawProjects = res.data.projects || res.data;
 
-      // Normalize data to prevent React object render errors
       const safeProjects = rawProjects.map((p: any) => ({
         ...p,
         businessName:
@@ -76,77 +77,89 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        Loading projects...
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <p className="text-gray-600 text-lg">Loading projects...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-10">
-      <h1 className="text-3xl font-bold mb-6">Available Projects</h1>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            Available Projects
+          </h1>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => {
-          const alreadyApplied = project.applicants?.some(
-            (app: any) => app.expertId?._id === userId,
-          );
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projects.map((project) => {
+              const alreadyApplied = project.applicants?.some(
+                (app: any) => app.expertId?._id === userId,
+              );
 
-          return (
-            <div
-              key={project._id}
-              className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-xl hover:scale-[1.02] transition"
-            >
-              <h2 className="text-xl font-semibold">{project.title}</h2>
-
-              <span
-                className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${
-                  project.status === "OPEN"
-                    ? "bg-green-600"
-                    : project.status === "IN_PROGRESS"
-                      ? "bg-yellow-500"
-                      : "bg-gray-600"
-                }`}
-              >
-                {project.status}
-              </span>
-
-              <p className="text-gray-300 mt-3 line-clamp-2">
-                {project.description}
-              </p>
-
-              <p className="text-blue-400 mt-3 font-medium">
-                Budget: ${project.budget}
-              </p>
-
-              <p className="text-gray-400 text-sm mt-1">
-                Posted by: {project.businessName}
-              </p>
-
-              <div className="flex gap-3 mt-5">
-                <a
-                  href={`/dashboard/projects/${project._id}`}
-                  className="flex-1 text-center bg-gray-700 hover:bg-gray-600 py-2 rounded-lg"
+              return (
+                <motion.div
+                  key={project._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition"
                 >
-                  View Details
-                </a>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {project.title}
+                  </h2>
 
-                <button
-                  disabled={alreadyApplied}
-                  onClick={() => apply(project._id)}
-                  className={`flex-1 py-2 rounded-lg ${
-                    alreadyApplied
-                      ? "bg-gray-600 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700"
-                  }`}
-                >
-                  {alreadyApplied ? "Applied" : "Apply"}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+                  <span
+                    className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full ${
+                      project.status === "OPEN"
+                        ? "bg-green-100 text-green-700"
+                        : project.status === "IN_PROGRESS"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {project.status}
+                  </span>
+
+                  <p className="text-gray-600 mt-3 line-clamp-3">
+                    {project.description}
+                  </p>
+
+                  <p className="text-blue-600 font-medium mt-3">
+                    Budget: ${project.budget}
+                  </p>
+
+                  <p className="text-gray-500 text-sm mt-1">
+                    Posted by: {project.businessName}
+                  </p>
+
+                  <div className="flex gap-3 mt-5">
+                    <a
+                      href={`/dashboard/projects/${project._id}`}
+                      className="flex-1 text-center py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition"
+                    >
+                      View Details
+                    </a>
+
+                    {project.status === "OPEN" && (
+                      <button
+                        disabled={alreadyApplied}
+                        onClick={() => apply(project._id)}
+                        className={`flex-1 py-2 rounded-lg text-white transition ${
+                          alreadyApplied
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-blue-500 hover:bg-blue-600"
+                        }`}
+                      >
+                        {alreadyApplied ? "Applied" : "Apply"}
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -1,6 +1,7 @@
 import "./globals.css";
 import AuthGuard from "@/components/AuthGuard";
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://searchmyexpert-psi.vercel.app"),
@@ -144,6 +145,7 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
+        <Toaster position="top-center" richColors />
 
         <main className="min-h-screen">{children}</main>
       </body>

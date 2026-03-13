@@ -12,20 +12,18 @@ const fs = require("fs");
 // =============================
 // MAIL TRANSPORTER
 // =============================
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // =============================
 // REGISTER
 // =============================
-// =============================
-// REGISTER
-// =============================
+
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -50,118 +48,136 @@ exports.register = async (req, res) => {
       role: role || "business",
     });
 
-    //     const loginUrl = `${process.env.CLIENT_URL}/login`;
+    const loginUrl = `${process.env.CLIENT_URL}/login`;
 
-    //     // 4️⃣ Mail Transport
-    //     const transporter = nodemailer.createTransport({
-    //       service: "gmail",
-    //       auth: {
-    //         user: process.env.EMAIL_USER,
-    //         pass: process.env.EMAIL_PASS,
-    //       },
-    //     });
+    // 4️⃣ Mail Transport
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-    //     // 5️⃣ Send Welcome Email (Same Design)
-    //     const info = await transporter.sendMail({
-    //       from: `"DevPlue Support" <${process.env.EMAIL_USER}>`,
-    //       to: email,
-    //       subject: "Welcome to DevPlue 🎉",
-    //       html: `
-    // <!DOCTYPE html>
-    // <html>
-    // <head>
-    // <meta charset="UTF-8" />
-    // </head>
+    // 5️⃣ Send Welcome Email (Same Design)
+    const info = await transporter.sendMail({
+      from: `"SearchMyExpert Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Welcome to SearchMyExpert 🎉",
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+</head>
 
-    // <body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
 
-    // <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
-    // <tr>
-    // <td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+<tr>
+<td align="center">
 
-    // <table width="600" cellpadding="0" cellspacing="0"
-    // style="background:#ffffff;border-radius:12px;overflow:hidden;
-    // box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+<table width="600" cellpadding="0" cellspacing="0"
+style="background:#ffffff;border-radius:12px;overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,0.05);">
 
-    // <!-- HEADER -->
-    // <tr>
-    // <td align="center"
-    // style="background:linear-gradient(135deg,#f97316,#2563eb);padding:35px;">
-    //   <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">
-    //     Welcome to DevPlue 🚀
-    //   </h1>
-    // </td>
-    // </tr>
+<!-- HEADER -->
+<tr>
+<td align="center"
+style="background:linear-gradient(135deg,#3b82f6,#2563eb);padding:35px;">
+  <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">
+    Welcome to SearchMyExpert 🚀
+  </h1>
+</td>
+</tr>
 
-    // <!-- CONTENT -->
-    // <tr>
-    // <td style="padding:40px 35px;">
-    //   <h2 style="margin-top:0;color:#111827;">
-    //     Hello ${name} 👋
-    //   </h2>
+<!-- CONTENT -->
+<tr>
+<td style="padding:40px 35px;">
+  <h2 style="margin-top:0;color:#111827;">
+    Hello ${name} 👋
+  </h2>
 
-    //   <p style="color:#374151;font-size:15px;line-height:1.6;">
-    //     Your account has been successfully created.
-    //   </p>
+  <p style="color:#374151;font-size:15px;line-height:1.6;">
+    Your account has been successfully created.
+  </p>
 
-    //   <p style="color:#374151;font-size:15px;line-height:1.6;">
-    //     You can now log in and start exploring DevPlue.
-    //   </p>
+  <p style="color:#374151;font-size:15px;line-height:1.6;">
+    <strong>Account Role:</strong> 
+    <span style="
+      background:#eff6ff;
+      color:#3b82f6;
+      padding:6px 12px;
+      border-radius:6px;
+      font-size:13px;
+      font-weight:600;
+      margin-left:6px;
+    ">
+      ${role}
+    </span>
+  </p>
 
-    //   <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
-    //     <tr>
-    //       <td align="center">
-    //         <a href="${loginUrl}"
-    //           style="
-    //             display:inline-block;
-    //             padding:14px 28px;
-    //             font-size:16px;
-    //             color:#ffffff;
-    //             background:linear-gradient(135deg,#f97316,#2563eb);
-    //             text-decoration:none;
-    //             border-radius:8px;
-    //             font-weight:bold;
-    //           ">
-    //           Login to Your Account
-    //         </a>
-    //       </td>
-    //     </tr>
-    //   </table>
+  <p style="color:#374151;font-size:15px;line-height:1.6;">
+    ${
+      role === "expert"
+        ? "You can now start offering your expertise and connect with businesses looking for professional guidance."
+        : "You can now search and connect with industry experts to grow your business."
+    }
+  </p>
 
-    //   <p style="color:#6b7280;font-size:13px;">
-    //     If you did not create this account, please contact support.
-    //   </p>
-    // </td>
-    // </tr>
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
+    <tr>
+      <td align="center">
+        <a href="${loginUrl}"
+          style="
+            display:inline-block;
+            padding:14px 28px;
+            font-size:16px;
+            color:#ffffff;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);
+            text-decoration:none;
+            border-radius:8px;
+            font-weight:bold;
+          ">
+          Login to Your Account
+        </a>
+      </td>
+    </tr>
+  </table>
 
-    // <!-- FOOTER -->
-    // <tr>
-    // <td align="center" style="background:#f9fafb;padding:20px;">
-    //   <p style="margin:0;font-size:12px;color:#6b7280;">
-    //     © ${new Date().getFullYear()} DevPlue. All rights reserved.
-    //   </p>
-    // </td>
-    // </tr>
+  <p style="color:#6b7280;font-size:13px;">
+    If you did not create this account, please contact support.
+  </p>
+</td>
+</tr>
 
-    // </table>
+<!-- FOOTER -->
+<tr>
+<td align="center" style="background:#f9fafb;padding:20px;">
+  <p style="margin:0;font-size:12px;color:#6b7280;">
+    © ${new Date().getFullYear()} SearchMyExpert. All rights reserved.
+  </p>
+</td>
+</tr>
 
-    // </td>
-    // </tr>
-    // </table>
+</table>
 
-    // </body>
-    // </html>
-    // `,
-    //     });
+</td>
+</tr>
+</table>
 
-    //     // 6️⃣ Rollback if email fails
-    //     if (!info.accepted || info.accepted.length === 0) {
-    //       await User.findByIdAndDelete(user._id);
+</body>
+</html>
+`,
+    });
+    // 6️⃣ Rollback if email fails
+    if (!info.accepted || info.accepted.length === 0) {
+      await User.findByIdAndDelete(user._id);
 
-    //       return res.status(400).json({
-    //         message: "Email not deliverable",
-    //       });
-    //     }
+      return res.status(400).json({
+        message: "Email not deliverable",
+      });
+    }
 
     res.status(201).json({
       message: "User registered successfully.",
@@ -411,7 +427,7 @@ exports.forgotPassword = async (req, res, next) => {
       });
     }
 
-    // 1️⃣ Generate reset token
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
     const hashedToken = crypto
@@ -422,23 +438,23 @@ exports.forgotPassword = async (req, res, next) => {
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
 
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    // 2️⃣ Send Email (Same Design)
     await transporter.sendMail({
-      from: `"DevPlue Support" <${process.env.EMAIL_USER}>`,
+      from: `"SearchMyExpert Support" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: "Reset Your Password – DevPlue",
+      subject: "Reset Your Password – SearchMyExpert",
       html: `
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
-<body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;">
 
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
 <tr>
@@ -451,62 +467,79 @@ box-shadow:0 10px 30px rgba(0,0,0,0.05);">
 <!-- HEADER -->
 <tr>
 <td align="center"
-style="background:linear-gradient(135deg,#f97316,#2563eb);padding:35px;">
-  <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">
-    DevPlue Password Reset 🔐
-  </h1>
+style="background:linear-gradient(135deg,#2563eb,#3b82f6);padding:35px;">
+<h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;">
+SearchMyExpert
+</h1>
+<p style="color:#e0e7ff;margin-top:6px;font-size:14px;">
+Password Reset Request
+</p>
 </td>
 </tr>
 
 <!-- CONTENT -->
 <tr>
 <td style="padding:40px 35px;">
-  <h2 style="margin-top:0;color:#111827;">
-    Hello ${user.name} 👋
-  </h2>
 
-  <p style="color:#374151;font-size:15px;line-height:1.6;">
-    We received a request to reset your password.
-  </p>
+<h2 style="margin-top:0;color:#111827;">
+Hello ${user.name},
+</h2>
 
-  <p style="color:#374151;font-size:15px;line-height:1.6;">
-    Click the button below to create a new password.
-    This link will expire in <strong>15 minutes</strong>.
-  </p>
+<p style="color:#374151;font-size:15px;line-height:1.6;">
+We received a request to reset your password for your <strong>SearchMyExpert</strong> account.
+</p>
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
-    <tr>
-      <td align="center">
-        <a href="${resetUrl}"
-          style="
-            display:inline-block;
-            padding:14px 28px;
-            font-size:16px;
-            color:#ffffff;
-            background:linear-gradient(135deg,#f97316,#2563eb);
-            text-decoration:none;
-            border-radius:8px;
-            font-weight:bold;
-          ">
-          Reset Password
-        </a>
-      </td>
-    </tr>
-  </table>
+<p style="color:#374151;font-size:15px;line-height:1.6;">
+Click the button below to create a new password. This link will expire in
+<strong>15 minutes</strong>.
+</p>
 
-  <p style="color:#6b7280;font-size:13px;">
-    If you didn’t request this password reset,
-    you can safely ignore this email.
-  </p>
+<!-- BUTTON -->
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
+<tr>
+<td align="center">
+
+<a href="${resetUrl}"
+style="
+display:inline-block;
+padding:14px 28px;
+font-size:16px;
+color:#ffffff;
+background:linear-gradient(135deg,#2563eb,#3b82f6);
+text-decoration:none;
+border-radius:8px;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.15);
+">
+Reset Password
+</a>
+
+</td>
+</tr>
+</table>
+
+<p style="color:#6b7280;font-size:13px;">
+If you did not request this password reset, you can safely ignore this email.
+Your account will remain secure.
+</p>
+
+<p style="color:#6b7280;font-size:13px;">
+If the button doesn't work, copy and paste this link into your browser:
+</p>
+
+<p style="word-break:break-all;font-size:13px;color:#2563eb;">
+${resetUrl}
+</p>
+
 </td>
 </tr>
 
 <!-- FOOTER -->
 <tr>
 <td align="center" style="background:#f9fafb;padding:20px;">
-  <p style="margin:0;font-size:12px;color:#6b7280;">
-    © ${new Date().getFullYear()} DevPlue. All rights reserved.
-  </p>
+<p style="margin:0;font-size:12px;color:#6b7280;">
+© ${new Date().getFullYear()} SearchMyExpert. All rights reserved.
+</p>
 </td>
 </tr>
 
@@ -520,7 +553,6 @@ style="background:linear-gradient(135deg,#f97316,#2563eb);padding:35px;">
 </html>
 `,
     });
-
     res.status(200).json({
       message: "Reset link sent",
     });
@@ -533,7 +565,7 @@ style="background:linear-gradient(135deg,#f97316,#2563eb);padding:35px;">
 // =============================
 exports.resetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
+    const token = decodeURIComponent(req.params.token);
     const { password } = req.body;
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -543,12 +575,14 @@ exports.resetPassword = async (req, res, next) => {
       resetPasswordExpire: { $gt: Date.now() },
     });
 
-    if (!user)
+    if (!user) {
       return res.status(400).json({
         message: "Invalid or expired token",
       });
+    }
 
     user.password = await bcrypt.hash(password, 10);
+
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
 

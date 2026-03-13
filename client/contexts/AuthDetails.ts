@@ -3,6 +3,9 @@
 import API from "@/lib/api";
 
 export interface User {
+  completedProjects: number;
+  activeProjects: number;
+  totalProjects: number;
   _id: string;
   name: string;
   email: string;
