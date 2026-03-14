@@ -101,6 +101,7 @@ export default function MyProjects() {
     );
   }
 
+  //return
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
