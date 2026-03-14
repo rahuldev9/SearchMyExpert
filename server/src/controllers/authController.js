@@ -15,7 +15,7 @@ const Project = require("../models/Project");
 // =============================
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
+  port: process.env.SMTP_PORT,
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
@@ -30,18 +30,13 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // 1️⃣ Check existing user
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    // 2️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 3️⃣ Create user
     const user = await User.create({
       name,
       email,
@@ -52,118 +47,27 @@ exports.register = async (req, res) => {
 
     const loginUrl = `${process.env.CLIENT_URL}/login`;
 
-    // 5️⃣ Send Welcome Email (Same Design)
-    const info = await transporter.sendMail({
-      from: `"SearchMyExpert Support" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Welcome to SearchMyExpert 🎉",
-      html: `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8" />
-</head>
+    let info; // ✅ declare here
 
-<body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
+    try {
+      info = await transporter.sendMail({
+        from: `"SearchMyExpert Support" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Welcome to SearchMyExpert 🎉",
+        html: `YOUR HTML TEMPLATE`,
+      });
 
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
-<tr>
-<td align="center">
+      console.log("Email sent:", info);
+    } catch (error) {
+      console.error("MAIL ERROR:", error);
 
-<table width="600" cellpadding="0" cellspacing="0"
-style="background:#ffffff;border-radius:12px;overflow:hidden;
-box-shadow:0 10px 30px rgba(0,0,0,0.05);">
+      await User.findByIdAndDelete(user._id);
 
-<!-- HEADER -->
-<tr>
-<td align="center"
-style="background:linear-gradient(135deg,#3b82f6,#2563eb);padding:35px;">
-  <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">
-    Welcome to SearchMyExpert 🚀
-  </h1>
-</td>
-</tr>
-
-<!-- CONTENT -->
-<tr>
-<td style="padding:40px 35px;">
-  <h2 style="margin-top:0;color:#111827;">
-    Hello ${name} 👋
-  </h2>
-
-  <p style="color:#374151;font-size:15px;line-height:1.6;">
-    Your account has been successfully created.
-  </p>
-
-  <p style="color:#374151;font-size:15px;line-height:1.6;">
-    <strong>Account Role:</strong> 
-    <span style="
-      background:#eff6ff;
-      color:#3b82f6;
-      padding:6px 12px;
-      border-radius:6px;
-      font-size:13px;
-      font-weight:600;
-      margin-left:6px;
-    ">
-      ${role}
-    </span>
-  </p>
-
-  <p style="color:#374151;font-size:15px;line-height:1.6;">
-    ${
-      role === "expert"
-        ? "You can now start offering your expertise and connect with businesses looking for professional guidance."
-        : "You can now search and connect with industry experts to grow your business."
+      return res.status(500).json({
+        message: "Email sending failed",
+      });
     }
-  </p>
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
-    <tr>
-      <td align="center">
-        <a href="${loginUrl}"
-          style="
-            display:inline-block;
-            padding:14px 28px;
-            font-size:16px;
-            color:#ffffff;
-            background:linear-gradient(135deg,#3b82f6,#2563eb);
-            text-decoration:none;
-            border-radius:8px;
-            font-weight:bold;
-          ">
-          Login to Your Account
-        </a>
-      </td>
-    </tr>
-  </table>
-
-  <p style="color:#6b7280;font-size:13px;">
-    If you did not create this account, please contact support.
-  </p>
-</td>
-</tr>
-
-<!-- FOOTER -->
-<tr>
-<td align="center" style="background:#f9fafb;padding:20px;">
-  <p style="margin:0;font-size:12px;color:#6b7280;">
-    © ${new Date().getFullYear()} SearchMyExpert. All rights reserved.
-  </p>
-</td>
-</tr>
-
-</table>
-
-</td>
-</tr>
-</table>
-
-</body>
-</html>
-`,
-    });
-    // 6️⃣ Rollback if email fails
     if (!info.accepted || info.accepted.length === 0) {
       await User.findByIdAndDelete(user._id);
 
