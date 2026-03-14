@@ -26,11 +26,13 @@ export default function MyProjects() {
 
         if (role === "business") {
           res = await API.get("/projects/my-projects");
-        } else {
+        } else if (role === "expert") {
           res = await API.get("/projects/expert-projects");
         }
 
-        setProjects(res.data);
+        if (res) {
+          setProjects(res.data);
+        }
       } catch (error) {
         console.error("Error fetching projects:", error);
       } finally {
