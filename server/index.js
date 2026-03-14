@@ -11,6 +11,7 @@ const notificationRoutes = require("./src/routes/notificationRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const reviewRoutes = require("./src/routes/reviewRoutes");
 const experts = require("./src/routes/ExpertsRoute");
+const business = require("./src/routes/businessRoute");
 const aiRoutes = require("./src/routes/ai");
 const cookieParser = require("cookie-parser");
 const passport = require("./src/config/passport");
@@ -45,6 +46,8 @@ io.on("connection", (socket) => {
 
 /* allow controllers to use socket */
 app.set("io", io);
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 app.use(passport.initialize());
 app.use(cookieParser());
@@ -67,7 +70,7 @@ app.use("/notifications", notificationRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/chat", chatRoutes);
 app.use("/expert", experts);
-
+app.use("/business", business);
 app.use("/api", aiRoutes);
 
 /* database */

@@ -34,8 +34,8 @@ exports.createCheckoutSession = async (req, res) => {
       ],
 
       mode: "payment",
-      success_url: `${process.env.CLIENT_URL}/dashbaord/payment-success?projectId=${project._id}`,
-      cancel_url: `${process.env.CLIENT_URL}dashboard/payment-cancel`,
+      success_url: `${process.env.CLIENT_URL}/dashboard/payment-success?projectId=${project._id}`,
+      cancel_url: `${process.env.CLIENT_URL}/dashboard/payment-cancel`,
     });
 
     res.json({ url: session.url });
@@ -49,14 +49,33 @@ exports.confirmPayment = async (req, res) => {
   try {
     const { projectId } = req.body;
 
-    await Project.findByIdAndUpdate(projectId, {
-      paymentStatus: "PAID",
-      paymentMethod: "STRIPE",
-      paidAt: new Date(),
-    });
+    if (!projectId) {
+      return res.status(400).json({ message: "Project ID is required" });
+    }
 
-    res.json({ success: true });
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.paymentStatus === "PAID") {
+      return res.json({ message: "Payment already confirmed" });
+    }
+
+    project.paymentStatus = "PAID";
+    project.paymentMethod = "STRIPE";
+    project.paidAt = new Date();
+
+    await project.save();
+
+    res.json({
+      success: true,
+      message: "Payment confirmed successfully",
+      projectId: project._id,
+    });
   } catch (error) {
+    console.error("Payment confirmation error:", error);
     res.status(500).json({ message: "Payment confirmation failed" });
   }
 };

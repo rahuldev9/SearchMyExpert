@@ -254,13 +254,12 @@ exports.profile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    res.status(200).json({
-      ...user.toObject(),
-      hasPassword: !!req.user.password,
-    });
-  } catch {
+    res.status(200).json(user);
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -321,6 +320,7 @@ exports.updateProfile = async (req, res) => {
       companyName,
       companySize,
       industry,
+      avatar,
     } = req.body;
 
     const user = await User.findById(userId);
@@ -338,6 +338,10 @@ exports.updateProfile = async (req, res) => {
     if (location !== undefined) user.location = location;
     if (website !== undefined) user.website = website;
 
+    if (avatar !== undefined) {
+      user.avatar = avatar; // base64 image
+    }
+
     // ================= EXPERT FIELDS =================
 
     if (user.role === "expert") {
@@ -349,13 +353,8 @@ exports.updateProfile = async (req, res) => {
         }
       }
 
-      if (experience !== undefined) {
-        user.experience = experience;
-      }
-
-      if (hourlyRate !== undefined) {
-        user.hourlyRate = hourlyRate;
-      }
+      if (experience !== undefined) user.experience = experience;
+      if (hourlyRate !== undefined) user.hourlyRate = hourlyRate;
     }
 
     // ================= BUSINESS FIELDS =================
@@ -380,15 +379,20 @@ exports.updateProfile = async (req, res) => {
     });
   }
 };
+
 exports.updateCoverPic = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const coverPic = req.file.path;
+    const { cover } = req.body; // base64 image
+
+    if (!cover) {
+      return res.status(400).json({ message: "Cover image required" });
+    }
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { coverPic },
+      { coverPic: cover },
       { new: true },
     );
 
@@ -400,21 +404,26 @@ exports.updateCoverPic = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // =============================
 // UPDATE AVATAR
 // =============================
 exports.updateAvatar = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    const { avatar } = req.body;
+
+    if (!avatar) {
+      return res.status(400).json({ message: "No avatar provided" });
+    }
 
     const user = await User.findById(req.user._id);
 
-    if (user.avatar) {
-      const oldPath = path.join(__dirname, "../../", user.avatar);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    user.avatar = `/uploads/${req.file.filename}`;
+    user.avatar = avatar;
+
     await user.save();
 
     res.status(200).json({
@@ -422,7 +431,11 @@ exports.updateAvatar = async (req, res) => {
       avatar: user.avatar,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 

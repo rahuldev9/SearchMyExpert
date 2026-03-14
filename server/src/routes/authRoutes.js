@@ -29,6 +29,7 @@ const {
   createCheckoutSession,
   confirmPayment,
 } = require("../controllers/paymentController");
+const { getUserRole } = require("../controllers/projectController");
 
 // Local Auth
 router.post("/register", register);
@@ -52,10 +53,13 @@ router.get(
   passport.authenticate("google", { session: false }),
   googleLogin,
 );
+router.get("/role", protect, getUserRole);
 router.patch("/update-profile", protect, updateProfile);
 router.delete("/delete-account", protect, deleteAccount);
+
 router.post("/forgot-password", forgotPassword);
-router.put("/cover", protect, updateCoverPic);
+router.put("/update-cover", protect, updateCoverPic);
+router.put("/update-profile", protect, updateAvatar);
 router.patch("/reset-password/:token", resetPassword);
 router.post("/set-password", protect, setPassword);
 router.get("/profile/:userId", getPublicProfile);
@@ -66,4 +70,5 @@ router.get("/follow/status/:userId", protect, checkFollowStatus);
 
 router.post("/payments/create", protect, createCheckoutSession);
 router.post("/payments/confirm", protect, confirmPayment);
+
 module.exports = router;

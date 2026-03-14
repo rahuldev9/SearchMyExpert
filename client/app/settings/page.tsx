@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import API from "@/lib/api";
 import { getUserProfile } from "@/contexts/AuthDetails";
-import { showToast } from "@/components/Toast";
 import LogoutButton from "@/components/LogoutButton";
 import { toast } from "sonner";
 
@@ -13,6 +12,7 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  coverPic?: string;
   role?: "business" | "expert";
 
   bio?: string;
@@ -26,16 +26,37 @@ interface User {
   companyName?: string;
   companySize?: string;
   industry?: string;
+
+  followers?: any[];
+  following?: any[];
+
+  totalProjects?: number;
+  activeProjects?: number;
+  completedProjects?: number;
+
+  rating?: number;
+  totalReviews?: number;
+
+  isVerified?: boolean;
+  isActive?: boolean;
+
+  createdAt?: string;
 }
 
-export default function SettingsPage() {
+export default function ProfileSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [form, setForm] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -62,6 +83,7 @@ export default function SettingsPage() {
       const res = await API.patch("/auth/update-profile", form);
 
       setUser(res.data.user);
+
       toast.success("Profile updated");
     } catch {
       toast.error("Update failed");
@@ -74,40 +96,81 @@ export default function SettingsPage() {
 
   const handleAvatarSelect = (e: any) => {
     const file = e.target.files[0];
+
     setAvatarFile(file);
+
     setAvatarPreview(URL.createObjectURL(file));
   };
 
   const uploadAvatar = async () => {
     if (!avatarFile) return;
 
-    const formData = new FormData();
-    formData.append("avatar", avatarFile);
+    const reader = new FileReader();
 
-    try {
-      const res = await API.put("/auth/update-avatar", formData);
+    reader.readAsDataURL(avatarFile);
 
-      setUser((prev) => (prev ? { ...prev, avatar: res.data.avatar } : prev));
+    reader.onloadend = async () => {
+      try {
+        const res = await API.put("/auth/update-avatar", {
+          avatar: reader.result,
+        });
 
-      toast.success("Avatar updated");
-    } catch {
-      toast.error("Avatar upload failed");
-    }
+        setUser((prev) => (prev ? { ...prev, avatar: res.data.avatar } : prev));
+
+        toast.success("Avatar updated");
+      } catch {
+        toast.error("Avatar upload failed");
+      }
+    };
   };
 
-  // ================= LOGOUT =================
+  // ================= COVER =================
 
-  const handleLogout = async () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
+  const handleCoverSelect = (e: any) => {
+    const file = e.target.files[0];
+
+    setCoverFile(file);
+
+    setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.readAsDataURL(file);
+
+      reader.onload = () => resolve(reader.result as string);
+
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const uploadCover = async () => {
+    if (!coverFile) return;
+
+    try {
+      const base64Image = await convertToBase64(coverFile);
+
+      const res = await API.put("/auth/update-cover", {
+        cover: base64Image,
+      });
+
+      setUser((prev) =>
+        prev ? { ...prev, coverPic: res.data.coverPic } : prev,
+      );
+
+      toast.success("Cover updated");
+    } catch (error) {
+      toast.error("Cover upload failed");
+    }
   };
 
   // ================= DELETE ACCOUNT =================
 
   const deleteAccount = async () => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete your account?",
-    );
+    const confirmDelete = confirm("Delete your account?");
+
     if (!confirmDelete) return;
 
     try {
@@ -115,291 +178,306 @@ export default function SettingsPage() {
 
       localStorage.removeItem("token");
 
-      toast.success("Account deleted");
       localStorage.removeItem("user");
+
       window.location.href = "/";
     } catch {
-      toast.error("Failed to delete account");
+      toast.error("Delete failed");
     }
   };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className=" px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-            {/* Title */}
-            <div className="h-8 w-60 bg-gray-200 rounded mb-8"></div>
-
-            {/* Avatar section */}
-            <div className="flex items-center gap-6 mb-10">
-              <div className="w-20 h-20 rounded-full bg-gray-200"></div>
-
-              <div className="space-y-3">
-                <div className="h-4 w-32 bg-gray-200 rounded"></div>
-                <div className="h-8 w-40 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-
-            {/* Form fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
-
-              <div>
-                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
-
-              <div>
-                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
-
-              <div>
-                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
-                <div className="h-10 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div className="mt-6">
-              <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
-              <div className="h-24 bg-gray-200 rounded"></div>
-            </div>
-
-            {/* Save button */}
-            <div className="mt-10">
-              <div className="h-12 w-full sm:w-48 bg-gray-200 rounded"></div>
-            </div>
-
-            {/* Account actions */}
-            <div className="mt-12 border-t pt-6 space-y-4">
-              <div className="h-5 w-40 bg-gray-200 rounded"></div>
-
-              <div className="flex gap-4">
-                <div className="h-10 w-32 bg-gray-200 rounded"></div>
-                <div className="h-10 w-40 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="p-10">Loading...</div>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-8">
-            Account Settings
-          </h1>
+      <div className="m-4">
+        {/* COVER + PROFILE HEADER */}
 
-          {/* AVATAR */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10">
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-              {avatarPreview ? (
+        <div className="relative">
+          {/* COVER IMAGE */}
+
+          <div className="relative w-full h-60 md:h-72 bg-gray-200 overflow-hidden">
+            {/* Hidden input */}
+
+            <input
+              type="file"
+              accept="image/*"
+              ref={coverInputRef}
+              onChange={handleCoverSelect}
+              className="hidden"
+            />
+
+            {/* Cover image */}
+
+            <div
+              onClick={() => coverInputRef.current?.click()}
+              className="w-full h-full cursor-pointer group"
+            >
+              {coverPreview ? (
                 <img
-                  src={avatarPreview}
+                  src={coverPreview}
                   className="w-full h-full object-cover"
                 />
-              ) : user?.avatar ? (
+              ) : user?.coverPic ? (
                 <img
-                  src={`${process.env.NEXT_PUBLIC_BACKEND_API}${user.avatar}`}
+                  src={
+                    user.coverPic.startsWith("data:")
+                      ? user.coverPic
+                      : user.coverPic.startsWith("http")
+                        ? user.coverPic
+                        : `${process.env.NEXT_PUBLIC_BACKEND_API}${user.coverPic}`
+                  }
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-xl font-bold">
-                  {user?.name?.charAt(0)}
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No Cover
                 </div>
               )}
-            </div>
 
-            <div className="flex flex-col gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarSelect}
-                className="text-sm"
-              />
+              {/* Hover overlay */}
 
-              <button
-                onClick={uploadAvatar}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm"
-              >
-                Upload Avatar
-              </button>
-            </div>
-          </div>
-
-          {/* BASIC INFO GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* NAME */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">Name</label>
-              <input
-                name="name"
-                value={form.name || ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3 mt-2"
-              />
-            </div>
-
-            {/* EMAIL */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">Email</label>
-              <p className="text-gray-600 mt-2">{user?.email}</p>
-            </div>
-
-            {/* LOCATION */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Location
-              </label>
-              <input
-                name="location"
-                value={form.location || ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3 mt-2"
-              />
-            </div>
-
-            {/* WEBSITE */}
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Website
-              </label>
-              <input
-                name="website"
-                value={form.website || ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-3 mt-2"
-              />
-            </div>
-          </div>
-
-          {/* BIO */}
-          <div className="mt-6">
-            <label className="text-sm font-medium text-gray-700">Bio</label>
-            <textarea
-              name="bio"
-              value={form.bio || ""}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2"
-            />
-          </div>
-
-          {/* EXPERT SECTION */}
-          {user?.role === "expert" && (
-            <>
-              <h2 className="text-xl font-semibold mt-10 mb-4">
-                Expert Profile
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="text-sm font-medium">Skills</label>
-                  <input
-                    value={form.skills?.join(",") || ""}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        skills: e.target.value.split(","),
-                      })
-                    }
-                    className="w-full border rounded-lg p-3 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Experience</label>
-                  <input
-                    name="experience"
-                    type="number"
-                    value={form.experience || ""}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg p-3 mt-2"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Hourly Rate</label>
-                  <input
-                    name="hourlyRate"
-                    type="number"
-                    value={form.hourlyRate || ""}
-                    onChange={handleChange}
-                    className="w-full border rounded-lg p-3 mt-2"
-                  />
-                </div>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-sm transition">
+                Change Cover
               </div>
-            </>
-          )}
+            </div>
 
-          {/* BUSINESS SECTION */}
-          {user?.role === "business" && (
-            <>
-              <h2 className="text-xl font-semibold mt-10 mb-4">
-                Business Info
-              </h2>
+            {/* Upload button */}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <input
-                  name="companyName"
-                  value={form.companyName || ""}
-                  onChange={handleChange}
-                  className="border rounded-lg p-3"
-                  placeholder="Company Name"
-                />
-
-                <input
-                  name="companySize"
-                  value={form.companySize || ""}
-                  onChange={handleChange}
-                  className="border rounded-lg p-3"
-                  placeholder="Company Size"
-                />
-
-                <input
-                  name="industry"
-                  value={form.industry || ""}
-                  onChange={handleChange}
-                  className="border rounded-lg p-3"
-                  placeholder="Industry"
-                />
-              </div>
-            </>
-          )}
-
-          {/* SAVE BUTTON */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="mt-10 w-full sm:w-auto px-8 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-
-          {/* ACCOUNT ACTIONS */}
-          <div className="mt-12 border-t pt-6">
-            <h2 className="text-lg font-semibold mb-4">Account Actions</h2>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <LogoutButton />
-
+            {coverFile && (
               <button
-                onClick={deleteAccount}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                onClick={uploadCover}
+                className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded"
               >
-                Delete Account
+                Upload Cover
               </button>
+            )}
+          </div>
+
+          {/* PROFILE HEADER */}
+
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-16">
+              {/* AVATAR */}
+
+              <div className="flex flex-col items-center sm:items-start gap-3">
+                {/* Hidden File Input */}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={avatarInputRef}
+                  onChange={handleAvatarSelect}
+                  className="hidden"
+                />
+
+                {/* Avatar */}
+
+                <div
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-gray-200 overflow-hidden shadow-lg cursor-pointer group"
+                >
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : user?.avatar ? (
+                    <img
+                      src={
+                        user.avatar.startsWith("data:")
+                          ? user.avatar
+                          : user.avatar.startsWith("http")
+                            ? user.avatar
+                            : `${process.env.NEXT_PUBLIC_BACKEND_API}${user.avatar}`
+                      }
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-xl sm:text-2xl font-bold">
+                      {user?.name?.charAt(0)}
+                    </div>
+                  )}
+
+                  {/* Hover overlay */}
+
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs sm:text-sm transition">
+                    Change Photo
+                  </div>
+                </div>
+
+                {/* Upload Button */}
+
+                {avatarFile && (
+                  <button
+                    onClick={uploadAvatar}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm px-3 py-2 rounded"
+                  >
+                    Upload Avatar
+                  </button>
+                )}
+              </div>
+
+              {/* USER INFO */}
+
+              <div className="flex-1 text-center sm:text-left">
+                <h1 className="text-xl sm:text-2xl font-bold">{user?.name}</h1>
+
+                <p className="text-gray-600 text-sm sm:text-base">
+                  {user?.bio}
+                </p>
+
+                {/* STATS */}
+
+                <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 mt-2 text-sm">
+                  <span>
+                    <b>{user?.followers?.length || 0}</b> Followers
+                  </span>
+
+                  <span>
+                    <b>{user?.following?.length || 0}</b> Following
+                  </span>
+
+                  <span>
+                    <b>{user?.totalProjects || 0}</b> Projects
+                  </span>
+                </div>
+
+                {user?.website && (
+                  <a
+                    href={user.website}
+                    target="_blank"
+                    className="text-blue-600 text-sm block mt-2"
+                  >
+                    {user.website}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* PROFILE EDIT */}
+
+        <div className="bg-white rounded-xl shadow p-6 mt-8 mx-4">
+          <h2 className="text-xl font-semibold mb-6">Edit Profile</h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <input
+              name="name"
+              value={form.name || ""}
+              onChange={handleChange}
+              placeholder="Name"
+              className="border p-3 rounded"
+            />
+
+            <input
+              name="location"
+              value={form.location || ""}
+              onChange={handleChange}
+              placeholder="Location"
+              className="border p-3 rounded"
+            />
+
+            <input
+              name="website"
+              value={form.website || ""}
+              onChange={handleChange}
+              placeholder="Website"
+              className="border p-3 rounded"
+            />
+          </div>
+
+          <textarea
+            name="bio"
+            value={form.bio || ""}
+            onChange={handleChange}
+            placeholder="Bio"
+            className="border p-3 rounded w-full mt-6"
+          />
+
+          {/* BUSINESS SECTION */}
+
+          {user?.role === "business" && (
+            <div className="grid md:grid-cols-3 gap-6 mt-6">
+              <input
+                name="companyName"
+                value={form.companyName || ""}
+                onChange={handleChange}
+                placeholder="Company Name"
+                className="border p-3 rounded"
+              />
+
+              <input
+                name="companySize"
+                value={form.companySize || ""}
+                onChange={handleChange}
+                placeholder="Company Size"
+                className="border p-3 rounded"
+              />
+
+              <input
+                name="industry"
+                value={form.industry || ""}
+                onChange={handleChange}
+                placeholder="Industry"
+                className="border p-3 rounded"
+              />
+            </div>
+          )}
+
+          {/* SAVE BUTTON */}
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+
+        {/* STATS */}
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 px-4">
+          <Stat title="Projects" value={user?.totalProjects} />
+
+          <Stat title="Active" value={user?.activeProjects} />
+
+          <Stat title="Completed" value={user?.completedProjects} />
+
+          <Stat title="Rating" value={user?.rating || 0} />
+        </div>
+
+        {/* ACCOUNT ACTIONS */}
+
+        <div className="mt-10 border-t pt-6 flex gap-4 px-4">
+          <LogoutButton />
+
+          <button
+            onClick={deleteAccount}
+            className="bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+function Stat({ title, value }: any) {
+  return (
+    <div className="bg-white p-4 rounded-lg shadow text-center">
+      <p className="text-gray-500 text-sm">{title}</p>
+
+      <p className="text-lg font-bold">{value}</p>
+    </div>
   );
 }

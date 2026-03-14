@@ -7,7 +7,8 @@ import API from "@/lib/api";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
 import PayButton from "@/components/PayButton";
-
+import { getUserId } from "@/contexts/AuthDetails";
+const userId = getUserId();
 export default function MyProjects() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,8 +17,25 @@ export default function MyProjects() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [closingProject, setClosingProject] = useState(false);
+  const [Role, setRole] = useState("");
 
-  const role = Cookies.get("role");
+  // const role = Cookies.get("role");
+
+  const expertId = projects.find((p) => p.selectedExpert)?.selectedExpert;
+
+  useEffect(() => {
+    async function fetchUserRole() {
+      try {
+        const res = await API.get("/auth/role");
+
+        setRole(res.data.role);
+      } catch (error) {
+        console.error("Failed to fetch role:", error);
+      }
+    }
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -34,7 +52,7 @@ export default function MyProjects() {
     }
 
     fetchProjects();
-  }, [role]);
+  }, [Role]);
 
   async function completeProject(projectId: string) {
     try {
@@ -139,7 +157,7 @@ export default function MyProjects() {
                 </span>
 
                 {/* Expert Button */}
-                {role === "expert" && project.status === "IN_PROGRESS" && (
+                {Role === "expert" && project.status === "IN_PROGRESS" && (
                   <button
                     onClick={() => completeProject(project._id)}
                     className="mt-4 w-full py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
@@ -147,9 +165,8 @@ export default function MyProjects() {
                     Mark as Completed
                   </button>
                 )}
-
                 {/* Business Buttons */}
-                {role === "business" && project.status === "COMPLETED" && (
+                {Role === "business" && project.status === "COMPLETED" && (
                   <div className="flex gap-2 mt-4">
                     <button
                       onClick={() => {
@@ -160,7 +177,10 @@ export default function MyProjects() {
                     >
                       Leave Review
                     </button>
-                    <PayButton project={project} />
+                    {project.status === "COMPLETED" &&
+                      project.paymentStatus === "PENDING" && (
+                        <PayButton project={project} />
+                      )}
 
                     <button
                       onClick={() => {

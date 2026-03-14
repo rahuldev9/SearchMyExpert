@@ -9,3 +9,15 @@ exports.getExperts = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getBusinesses = async (req, res) => {
+  try {
+    const businesses = await User.find({ role: "business" }).select(
+      "-password",
+    );
+
+    res.json(businesses);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
