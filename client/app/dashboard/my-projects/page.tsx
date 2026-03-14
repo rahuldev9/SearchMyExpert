@@ -20,25 +20,25 @@ export default function MyProjects() {
   const role = Cookies.get("role");
 
   useEffect(() => {
-    async function fetchProjects() {
+    const fetchProjects = async () => {
       try {
-        let res;
+        const endpoint =
+          role === "business"
+            ? "/projects/my-projects"
+            : role === "expert"
+              ? "/projects/expert-projects"
+              : null;
 
-        if (role === "business") {
-          res = await API.get("/projects/my-projects");
-        } else if (role === "expert") {
-          res = await API.get("/projects/expert-projects");
-        }
+        if (!endpoint) return;
 
-        if (res) {
-          setProjects(res.data);
-        }
+        const { data } = await API.get(endpoint);
+        setProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchProjects();
   }, [role]);
