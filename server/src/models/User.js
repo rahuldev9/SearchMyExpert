@@ -90,6 +90,34 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
+    coverPic: {
+      type: String,
+      default: null,
+    },
+
+    // ================= FOLLOW SYSTEM =================
+
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    followRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
     // ================= EXPERT PROFILE =================
 
     skills: [

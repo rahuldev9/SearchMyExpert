@@ -31,8 +31,34 @@ export default function NotificationsPage() {
       await API.patch(`/notifications/${id}/read`);
 
       setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, seen: true } : n)),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function acceptFollow(userId: string, notificationId: string) {
+    try {
+      await API.post(`/auth/follow/accept/${userId}`);
+
+      setNotifications((prev) =>
         prev.map((n) =>
-          n._id === id ? { ...n, readBy: [...(n.readBy || []), "me"] } : n,
+          n._id === notificationId ? { ...n, status: "ACCEPTED" } : n,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function rejectFollow(userId: string, notificationId: string) {
+    try {
+      await API.post(`/auth/follow/reject/${userId}`);
+
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === notificationId ? { ...n, status: "REJECTED" } : n,
         ),
       );
     } catch (error) {
@@ -42,6 +68,7 @@ export default function NotificationsPage() {
 
   function openNotification(n: any) {
     markAsRead(n._id);
+
     if (n.projectId?._id) {
       router.push(`/dashboard/projects/${n.projectId._id}`);
     }
@@ -66,7 +93,7 @@ export default function NotificationsPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
+      <div className=" bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Notifications
@@ -99,6 +126,12 @@ export default function NotificationsPage() {
                     <div>
                       <h2 className="font-semibold text-gray-900">{n.title}</h2>
 
+                      {n.type === "FOLLOW_REQUEST" && (
+                        <p className="text-blue-600 text-sm mt-1">
+                          {n.senderId?.name} sent you a follow request
+                        </p>
+                      )}
+
                       <p className="text-gray-600 mt-1">{n.message}</p>
 
                       {n.projectId?.title && (
@@ -117,13 +150,49 @@ export default function NotificationsPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 mt-4">
+                  <div className="flex gap-3 mt-4 flex-wrap">
+                    {n.type === "FOLLOW_REQUEST" && n.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            acceptFollow(n.senderId?._id, n._id);
+                          }}
+                          className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md"
+                        >
+                          Accept
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            rejectFollow(n.senderId?._id, n._id);
+                          }}
+                          className="px-3 py-1 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+
+                    {n.type === "FOLLOW_REQUEST" && n.status === "ACCEPTED" && (
+                      <span className="text-green-600 text-sm font-medium">
+                        Follow request accepted
+                      </span>
+                    )}
+
+                    {n.type === "FOLLOW_REQUEST" && n.status === "REJECTED" && (
+                      <span className="text-gray-500 text-sm font-medium">
+                        Follow request rejected
+                      </span>
+                    )}
+
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteNotification(n._id);
                       }}
-                      className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+                      className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
                     >
                       Delete
                     </button>

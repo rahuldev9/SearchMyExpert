@@ -23,7 +23,7 @@ export default function TodoList() {
           <div
             key={task.id}
             onClick={() => toggle(task.id)}
-            className="flex items-center gap-3 border p-3 rounded-lg cursor-pointer hover:bg-gray-50"
+            className="flex items-center gap-3 border-none border p-3 rounded-lg cursor-pointer hover:bg-gray-50"
           >
             <div
               className={`w-5 h-5 border rounded flex items-center justify-center ${

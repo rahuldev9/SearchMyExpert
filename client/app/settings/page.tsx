@@ -6,6 +6,7 @@ import API from "@/lib/api";
 import { getUserProfile } from "@/contexts/AuthDetails";
 import { showToast } from "@/components/Toast";
 import LogoutButton from "@/components/LogoutButton";
+import { toast } from "sonner";
 
 interface User {
   _id: string;
@@ -61,9 +62,9 @@ export default function SettingsPage() {
       const res = await API.patch("/auth/update-profile", form);
 
       setUser(res.data.user);
-      showToast("Profile updated", "success");
+      toast.success("Profile updated");
     } catch {
-      showToast("Update failed", "error");
+      toast.error("Update failed");
     } finally {
       setSaving(false);
     }
@@ -88,9 +89,9 @@ export default function SettingsPage() {
 
       setUser((prev) => (prev ? { ...prev, avatar: res.data.avatar } : prev));
 
-      showToast("Avatar updated", "success");
+      toast.success("Avatar updated");
     } catch {
-      showToast("Avatar upload failed", "error");
+      toast.error("Avatar upload failed");
     }
   };
 
@@ -114,205 +115,288 @@ export default function SettingsPage() {
 
       localStorage.removeItem("token");
 
-      showToast("Account deleted", "success");
+      toast.success("Account deleted");
       localStorage.removeItem("user");
       window.location.href = "/";
     } catch {
-      showToast("Failed to delete account", "error");
+      toast.error("Failed to delete account");
     }
   };
 
-  if (loading) return <DashboardLayout>Loading...</DashboardLayout>;
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className=" px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+            {/* Title */}
+            <div className="h-8 w-60 bg-gray-200 rounded mb-8"></div>
+
+            {/* Avatar section */}
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-20 h-20 rounded-full bg-gray-200"></div>
+
+              <div className="space-y-3">
+                <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                <div className="h-8 w-40 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+
+            {/* Form fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+
+              <div>
+                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+
+              <div>
+                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+
+              <div>
+                <div className="h-4 w-20 bg-gray-200 rounded mb-2"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="mt-6">
+              <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
+              <div className="h-24 bg-gray-200 rounded"></div>
+            </div>
+
+            {/* Save button */}
+            <div className="mt-10">
+              <div className="h-12 w-full sm:w-48 bg-gray-200 rounded"></div>
+            </div>
+
+            {/* Account actions */}
+            <div className="mt-12 border-t pt-6 space-y-4">
+              <div className="h-5 w-40 bg-gray-200 rounded"></div>
+
+              <div className="flex gap-4">
+                <div className="h-10 w-32 bg-gray-200 rounded"></div>
+                <div className="h-10 w-40 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto p-8 bg-white rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-8">Account Settings</h1>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-8">
+            Account Settings
+          </h1>
 
-        {/* AVATAR */}
-
-        <div className="flex items-center gap-6 mb-10">
-          <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
-            {avatarPreview ? (
-              <img src={avatarPreview} className="w-full h-full object-cover" />
-            ) : user?.avatar ? (
-              <img
-                src={`${process.env.NEXT_PUBLIC_BACKEND_API}${user.avatar}`}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-xl font-bold">
-                {user?.name?.charAt(0)}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <input type="file" accept="image/*" onChange={handleAvatarSelect} />
-            <button
-              onClick={uploadAvatar}
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
-            >
-              Upload Avatar
-            </button>
-          </div>
-        </div>
-
-        {/* NAME */}
-
-        <div className="mb-6">
-          <label>Name</label>
-          <input
-            name="name"
-            value={form.name || ""}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* EMAIL */}
-
-        <div className="mb-6">
-          <label>Email</label>
-          <p className="text-gray-600">{user?.email}</p>
-        </div>
-
-        {/* BIO */}
-
-        <div className="mb-6">
-          <label>Bio</label>
-          <textarea
-            name="bio"
-            value={form.bio || ""}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* LOCATION */}
-
-        <div className="mb-6">
-          <label>Location</label>
-          <input
-            name="location"
-            value={form.location || ""}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* WEBSITE */}
-
-        <div className="mb-6">
-          <label>Website</label>
-          <input
-            name="website"
-            value={form.website || ""}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
-          />
-        </div>
-
-        {/* EXPERT FIELDS */}
-
-        {user?.role === "expert" && (
-          <>
-            <h2 className="text-xl font-semibold mt-10 mb-4">Expert Profile</h2>
-
-            <div className="mb-6">
-              <label>Skills</label>
-              <input
-                value={form.skills?.join(",") || ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    skills: e.target.value.split(","),
-                  })
-                }
-                className="w-full border rounded-lg p-3 mt-2"
-              />
+          {/* AVATAR */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  className="w-full h-full object-cover"
+                />
+              ) : user?.avatar ? (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_API}${user.avatar}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-xl font-bold">
+                  {user?.name?.charAt(0)}
+                </div>
+              )}
             </div>
 
-            <div className="mb-6">
-              <label>Experience</label>
+            <div className="flex flex-col gap-2">
               <input
-                name="experience"
-                type="number"
-                value={form.experience || ""}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarSelect}
+                className="text-sm"
+              />
+
+              <button
+                onClick={uploadAvatar}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm"
+              >
+                Upload Avatar
+              </button>
+            </div>
+          </div>
+
+          {/* BASIC INFO GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* NAME */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">Name</label>
+              <input
+                name="name"
+                value={form.name || ""}
                 onChange={handleChange}
                 className="w-full border rounded-lg p-3 mt-2"
               />
             </div>
 
-            <div className="mb-6">
-              <label>Hourly Rate</label>
+            {/* EMAIL */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">Email</label>
+              <p className="text-gray-600 mt-2">{user?.email}</p>
+            </div>
+
+            {/* LOCATION */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Location
+              </label>
               <input
-                name="hourlyRate"
-                type="number"
-                value={form.hourlyRate || ""}
+                name="location"
+                value={form.location || ""}
                 onChange={handleChange}
                 className="w-full border rounded-lg p-3 mt-2"
               />
             </div>
-          </>
-        )}
 
-        {/* BUSINESS FIELDS */}
+            {/* WEBSITE */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Website
+              </label>
+              <input
+                name="website"
+                value={form.website || ""}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-3 mt-2"
+              />
+            </div>
+          </div>
 
-        {user?.role === "business" && (
-          <>
-            <h2 className="text-xl font-semibold mt-10 mb-4">Business Info</h2>
-
-            <input
-              name="companyName"
-              value={form.companyName || ""}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2 mb-4"
-              placeholder="Company Name"
-            />
-
-            <input
-              name="companySize"
-              value={form.companySize || ""}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-3 mt-2 mb-4"
-              placeholder="Company Size"
-            />
-
-            <input
-              name="industry"
-              value={form.industry || ""}
+          {/* BIO */}
+          <div className="mt-6">
+            <label className="text-sm font-medium text-gray-700">Bio</label>
+            <textarea
+              name="bio"
+              value={form.bio || ""}
               onChange={handleChange}
               className="w-full border rounded-lg p-3 mt-2"
-              placeholder="Industry"
             />
-          </>
-        )}
+          </div>
 
-        {/* SAVE */}
+          {/* EXPERT SECTION */}
+          {user?.role === "expert" && (
+            <>
+              <h2 className="text-xl font-semibold mt-10 mb-4">
+                Expert Profile
+              </h2>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="mt-8 w-full bg-gradient-to-r from-orange-500 to-blue-600 text-white py-3 rounded-lg"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="text-sm font-medium">Skills</label>
+                  <input
+                    value={form.skills?.join(",") || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        skills: e.target.value.split(","),
+                      })
+                    }
+                    className="w-full border rounded-lg p-3 mt-2"
+                  />
+                </div>
 
-        {/* ACCOUNT ACTIONS */}
+                <div>
+                  <label className="text-sm font-medium">Experience</label>
+                  <input
+                    name="experience"
+                    type="number"
+                    value={form.experience || ""}
+                    onChange={handleChange}
+                    className="w-full border rounded-lg p-3 mt-2"
+                  />
+                </div>
 
-        <div className="mt-12 border-t pt-6">
-          <h2 className="text-lg font-semibold mb-4">Account Actions</h2>
+                <div>
+                  <label className="text-sm font-medium">Hourly Rate</label>
+                  <input
+                    name="hourlyRate"
+                    type="number"
+                    value={form.hourlyRate || ""}
+                    onChange={handleChange}
+                    className="w-full border rounded-lg p-3 mt-2"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
-          <div className="flex gap-4">
-            <LogoutButton />
+          {/* BUSINESS SECTION */}
+          {user?.role === "business" && (
+            <>
+              <h2 className="text-xl font-semibold mt-10 mb-4">
+                Business Info
+              </h2>
 
-            <button
-              onClick={deleteAccount}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg"
-            >
-              Delete Account
-            </button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <input
+                  name="companyName"
+                  value={form.companyName || ""}
+                  onChange={handleChange}
+                  className="border rounded-lg p-3"
+                  placeholder="Company Name"
+                />
+
+                <input
+                  name="companySize"
+                  value={form.companySize || ""}
+                  onChange={handleChange}
+                  className="border rounded-lg p-3"
+                  placeholder="Company Size"
+                />
+
+                <input
+                  name="industry"
+                  value={form.industry || ""}
+                  onChange={handleChange}
+                  className="border rounded-lg p-3"
+                  placeholder="Industry"
+                />
+              </div>
+            </>
+          )}
+
+          {/* SAVE BUTTON */}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="mt-10 w-full sm:w-auto px-8 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+
+          {/* ACCOUNT ACTIONS */}
+          <div className="mt-12 border-t pt-6">
+            <h2 className="text-lg font-semibold mb-4">Account Actions</h2>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <LogoutButton />
+
+              <button
+                onClick={deleteAccount}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+              >
+                Delete Account
+              </button>
+            </div>
           </div>
         </div>
       </div>

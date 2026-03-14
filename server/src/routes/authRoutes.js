@@ -15,6 +15,11 @@ const {
   selectRole,
   CheckMe,
   updateProfile,
+  followUser,
+  rejectFollow,
+  acceptExpert,
+  updateCoverPic,
+  checkFollowStatus,
 } = require("../controllers/authController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -46,7 +51,12 @@ router.get(
 router.patch("/update-profile", protect, updateProfile);
 router.delete("/delete-account", protect, deleteAccount);
 router.post("/forgot-password", forgotPassword);
+router.put("/cover", protect, updateCoverPic);
 router.patch("/reset-password/:token", resetPassword);
 router.post("/set-password", protect, setPassword);
 router.get("/profile/:userId", getPublicProfile);
+router.post("/follow/:userId", protect, followUser);
+router.post("/follow/accept/:userId", protect, acceptExpert);
+router.post("/follow/reject/:userId", protect, rejectFollow);
+router.get("/follow/status/:userId", protect, checkFollowStatus);
 module.exports = router;

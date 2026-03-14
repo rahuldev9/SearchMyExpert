@@ -13,7 +13,6 @@ const notificationSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
-
     type: {
       type: String,
       enum: [
@@ -24,10 +23,15 @@ const notificationSchema = new mongoose.Schema(
         "PROJECT_COMPLETED",
         "PROJECT_REVIEWED",
         "PROJECT_CLOSED",
+        "FOLLOW_REQUEST",
       ],
       required: true,
     },
-
+    status: {
+      type: String,
+      enum: ["PENDING", "ACCEPTED", "REJECTED"],
+      default: "PENDING",
+    },
     title: String,
     message: String,
 
