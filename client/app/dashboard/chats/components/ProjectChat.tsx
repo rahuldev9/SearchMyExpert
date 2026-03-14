@@ -58,9 +58,7 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
         message: text,
       });
 
-      socket.emit("sendMessage", newMessage);
-
-      setMessages((prev) => [...prev, newMessage]);
+      // socket.emit("sendMessage", newMessage);
 
       setText("");
     } catch (error) {
@@ -74,10 +72,10 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-[500px] bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden m-2">
+      <div className="flex flex-col h-[550px] bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden m-2">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-white">
-          <h2 className="text-lg font-semibold text-gray-800">Project Chat</h2>
+          <h2 className="text-lg font-semibold text-gray-800">{projectId}</h2>
         </div>
 
         {/* Messages */}
@@ -141,7 +139,7 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
         </div>
 
         {/* Input */}
-        <div className="p-4 flex gap-3 items-center border-t bg-white">
+        <div className="p-4 flex gap-3 items-center bg-white">
           <input
             type="text"
             placeholder="Type a message..."

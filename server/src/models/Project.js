@@ -32,7 +32,8 @@ const projectSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["UPI", "RAZORPAY", "MANUAL"],
+      enum: ["UPI", "RAZORPAY", "STRIPE", "MANUAL"],
+      default: null,
     },
 
     paymentAmount: {

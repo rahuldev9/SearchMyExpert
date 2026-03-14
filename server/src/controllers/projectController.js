@@ -171,11 +171,17 @@ exports.getExpertProjects = async (req, res) => {
 
 exports.getMyProjects = async (req, res) => {
   try {
-    const userId = req.user.id;
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = new mongoose.Types.ObjectId(req.user.id);
 
     const projects = await Project.find({
-      $or: [{ businessId: userId }, { "applicants.expertId": userId }],
-    }).sort({ createdAt: -1 });
+      $or: [{ businessId: userId }, { selectedExpert: userId }],
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(projects);
   } catch (error) {
@@ -183,7 +189,6 @@ exports.getMyProjects = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 exports.updateProject = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
@@ -451,5 +456,27 @@ exports.closeProject = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserRole = async (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(req.user.id).select("role").lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      userId: req.user.id,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
