@@ -97,7 +97,7 @@ export default function UserForm() {
                 name="role"
                 required
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full border text-black border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="business">Business</option>
                 <option value="expert">Expert</option>
@@ -126,7 +126,7 @@ export default function UserForm() {
                   name="experience"
                   type="number"
                   placeholder="e.g. 3 years"
-                  className="w-full border border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full border text-black border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
               </div>
             )}
@@ -138,7 +138,7 @@ export default function UserForm() {
               <textarea
                 name="bio"
                 placeholder="Tell us about yourself"
-                className="w-full border border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full border text-black border-gray-300 rounded-lg p-2.5 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
