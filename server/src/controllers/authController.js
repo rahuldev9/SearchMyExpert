@@ -15,14 +15,13 @@ const Project = require("../models/Project");
 // =============================
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: 465,
-  secure: true,
+  port: Number(process.env.SMTP_PORT),
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
 });
-
 // =============================
 // REGISTER
 // =============================
@@ -52,15 +51,6 @@ exports.register = async (req, res) => {
     });
 
     const loginUrl = `${process.env.CLIENT_URL}/login`;
-
-    // 4️⃣ Mail Transport
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
 
     // 5️⃣ Send Welcome Email (Same Design)
     const info = await transporter.sendMail({
