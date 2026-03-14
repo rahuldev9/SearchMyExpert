@@ -22,12 +22,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-console.log(
-  process.env.SMTP_HOST,
-  process.env.SMTP_PORT,
-  process.env.EMAIL_USER,
-  process.env.EMAIL_PASS,
-);
+
 // =============================
 // REGISTER
 // =============================
