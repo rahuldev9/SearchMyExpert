@@ -17,15 +17,9 @@ export default function MyProjects() {
   const [comment, setComment] = useState("");
   const [closingProject, setClosingProject] = useState(false);
 
-  const [role, setRole] = useState<string | undefined>(undefined);
+  const role = Cookies.get("role");
 
   useEffect(() => {
-    const cookieRole = Cookies.get("role");
-    setRole(cookieRole);
-  }, []);
-  useEffect(() => {
-    if (!role) return;
-
     async function fetchProjects() {
       try {
         let res;
