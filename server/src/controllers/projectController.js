@@ -170,11 +170,18 @@ exports.getExpertProjects = async (req, res) => {
 };
 
 exports.getMyProjects = async (req, res) => {
-  const projects = await Project.find({
-    businessId: req.user.id,
-  });
+  try {
+    const userId = req.user.id;
 
-  res.json(projects);
+    const projects = await Project.find({
+      $or: [{ businessId: userId }, { "applicants.expertId": userId }],
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 exports.updateProject = async (req, res) => {
