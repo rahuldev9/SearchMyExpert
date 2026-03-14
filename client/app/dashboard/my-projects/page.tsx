@@ -6,6 +6,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import API from "@/lib/api";
 import Cookies from "js-cookie";
 import { motion } from "framer-motion";
+import PayButton from "@/components/PayButton";
 
 export default function MyProjects() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -163,6 +164,7 @@ export default function MyProjects() {
                     >
                       Leave Review
                     </button>
+                    <PayButton project={project} />
 
                     <button
                       onClick={() => {

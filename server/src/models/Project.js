@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const projectSchema = new mongoose.Schema(
   {
     title: String,
@@ -20,6 +21,26 @@ const projectSchema = new mongoose.Schema(
       type: String,
       enum: ["OPEN", "IN_PROGRESS", "COMPLETED", "CLOSED"],
       default: "OPEN",
+    },
+
+    // PAYMENT INFORMATION
+    paymentStatus: {
+      type: String,
+      enum: ["PENDING", "PAID"],
+      default: "PENDING",
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: ["UPI", "RAZORPAY", "MANUAL"],
+    },
+
+    paymentAmount: {
+      type: Number,
+    },
+
+    paidAt: {
+      type: Date,
     },
 
     review: {
