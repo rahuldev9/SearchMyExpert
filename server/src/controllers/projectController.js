@@ -176,6 +176,7 @@ exports.getMyProjects = async (req, res) => {
 
   res.json(projects);
 };
+
 exports.updateProject = async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
