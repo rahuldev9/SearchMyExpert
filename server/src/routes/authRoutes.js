@@ -25,6 +25,10 @@ const {
 const { protect } = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const { getPublicProfile } = require("../controllers/userController");
+const {
+  createCheckoutSession,
+  confirmPayment,
+} = require("../controllers/paymentController");
 
 // Local Auth
 router.post("/register", register);
@@ -59,4 +63,7 @@ router.post("/follow/:userId", protect, followUser);
 router.post("/follow/accept/:userId", protect, acceptExpert);
 router.post("/follow/reject/:userId", protect, rejectFollow);
 router.get("/follow/status/:userId", protect, checkFollowStatus);
+
+router.post("/payments/create", protect, createCheckoutSession);
+router.post("/payments/confirm", protect, confirmPayment);
 module.exports = router;

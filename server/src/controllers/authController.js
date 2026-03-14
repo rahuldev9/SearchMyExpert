@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 const Notification = require("../models/Notification");
+const Project = require("../models/Project");
 // =============================
 // MAIL TRANSPORTER
 // =============================
