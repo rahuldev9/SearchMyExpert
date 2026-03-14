@@ -61,7 +61,7 @@ export default function DashboardLayout({
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-y-auto transition-all duration-300">
+      <main className="flex-1 flex flex-col h-full overflow-y-auto pb-12 transition-all duration-300">
         {children}
       </main>
     </div>

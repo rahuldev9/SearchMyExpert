@@ -14,9 +14,14 @@ export default function CreateProject() {
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
   const [category, setCategory] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function submitProject() {
+    if (loading) return;
+
     try {
+      setLoading(true);
+
       const res = await API.post("/projects/create", {
         title,
         description,
@@ -25,22 +30,22 @@ export default function CreateProject() {
         notificationType: "PROJECT_POSTED",
       });
 
-      const project = res.data.project;
-
       toast.success("Project Created Successfully");
 
       router.push("/dashboard/my-projects");
     } catch (error) {
       console.error(error);
-      alert("Failed to create project");
+      toast.error("Failed to create project");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <DashboardLayout>
+      {/* Header */}
       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          {/* Logo / Title */}
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -49,7 +54,6 @@ export default function CreateProject() {
             Project Dashboard
           </motion.h1>
 
-          {/* Navigation */}
           <div className="flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -62,6 +66,8 @@ export default function CreateProject() {
           </div>
         </div>
       </header>
+
+      {/* Form */}
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -76,8 +82,7 @@ export default function CreateProject() {
 
             <div className="space-y-4">
               <input
-                className="w-full px-4 py-3 rounded-xl border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 placeholder="Project Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -85,38 +90,43 @@ export default function CreateProject() {
 
               <textarea
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 placeholder="Project Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
 
               <input
-                className="w-full px-4 py-3 rounded-xl border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 placeholder="Project Budget"
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
               />
 
               <input
-                className="w-full px-4 py-3 rounded-xl border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 placeholder="Project Category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               />
             </div>
 
+            {/* Submit Button with Loader */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={!loading ? { scale: 1.02 } : {}}
+              whileTap={!loading ? { scale: 0.96 } : {}}
               onClick={submitProject}
-              className="mt-6 w-full py-3 rounded-xl font-semibold text-white
-              bg-blue-500 hover:bg-blue-600 transition shadow-md"
+              disabled={loading}
+              className="mt-6 w-full py-3 rounded-xl font-semibold text-white bg-blue-500 hover:bg-blue-600 transition shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              Post Project
+              {loading ? (
+                <>
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Posting...
+                </>
+              ) : (
+                "Post Project"
+              )}
             </motion.button>
           </div>
         </motion.div>

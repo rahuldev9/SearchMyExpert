@@ -21,6 +21,7 @@ interface User {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,32 +37,60 @@ export default function DashboardPage() {
         });
       } catch (error) {
         console.error("Failed to fetch user", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
   }, []);
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="p-6 md:p-10 space-y-8 animate-pulse">
+          {/* Welcome Skeleton */}
+          <div className="h-24 bg-gray-200 rounded-xl"></div>
+
+          {/* Quick Actions Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="h-16 bg-gray-200 rounded-lg"></div>
+            <div className="h-16 bg-gray-200 rounded-lg"></div>
+            <div className="h-16 bg-gray-200 rounded-lg"></div>
+            <div className="h-16 bg-gray-200 rounded-lg"></div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="h-28 bg-gray-200 rounded-xl"></div>
+            <div className="h-28 bg-gray-200 rounded-xl"></div>
+            <div className="h-28 bg-gray-200 rounded-xl"></div>
+          </div>
+
+          {/* AI + Todo Skeleton */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="h-40 bg-gray-200 rounded-xl"></div>
+            <div className="h-40 bg-gray-200 rounded-xl"></div>
+          </div>
+
+          {/* Recent Activity Skeleton */}
+          <div className="h-40 bg-gray-200 rounded-xl"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="p-6 md:p-10 space-y-8">
-        {/* Welcome */}
         <WelcomeCard name={user?.name || ""} />
-
-        {/* Quick Actions */}
         <QuickActions role={user?.role} />
-
-        {/* Stats */}
         <StatsCards />
-
-        {/* AI + Todo */}
         <div className="grid lg:grid-cols-2 gap-6">
           <MatchAI />
           <TodoList />
         </div>
-
-        {/* Recent Activity */}
-        <RecentActivity />
+        {/* <RecentActivity /> */}
       </div>
     </DashboardLayout>
   );

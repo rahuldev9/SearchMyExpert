@@ -1,3 +1,4 @@
+import Cookies from "js-cookie";
 // Save user to localStorage
 export function setCurrentUser(user: any) {
   if (typeof window === "undefined") return;
@@ -40,4 +41,17 @@ export function removeCurrentUser() {
 
   localStorage.removeItem("user");
   localStorage.removeItem("token");
+}
+
+export function getToken() {
+  if (typeof window === "undefined") return null;
+
+  return Cookies.get("token") || null;
+}
+
+// Get role from cookies
+export function getRole() {
+  if (typeof window === "undefined") return null;
+
+  return Cookies.get("role") || null;
 }

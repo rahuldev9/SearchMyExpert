@@ -63,7 +63,7 @@ export default function DashboardPage() {
         )}
 
         {/* Recent Activity */}
-        <RecentActivity />
+        {/* <RecentActivity /> */}
       </div>
     </DashboardLayout>
   );

@@ -8,7 +8,7 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
-
+const Notification = require("../models/Notification");
 // =============================
 // MAIL TRANSPORTER
 // =============================
@@ -381,7 +381,26 @@ exports.updateProfile = async (req, res) => {
     });
   }
 };
+exports.updateCoverPic = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
+    const coverPic = req.file.path;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { coverPic },
+      { new: true },
+    );
+
+    res.json({
+      message: "Cover picture updated",
+      coverPic: user.coverPic,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // =============================
 // UPDATE AVATAR
 // =============================
@@ -645,160 +664,6 @@ exports.setPassword = async (req, res) => {
   }
 };
 
-// =============================
-// GOOGLE LOGIN CALLBACK
-// =============================
-// =============================
-// GOOGLE LOGIN
-// =============================
-// exports.googleLogin = async (req, res) => {
-//   try {
-//     if (!req.user) {
-//       return res.redirect(`${process.env.CLIENT_URL}/login`);
-//     }
-
-//     const { email, name, avatar, existingUser } = req.user;
-
-//     let user = existingUser;
-//     let isNewUser = false;
-
-//     // 1️⃣ Create user if not exists
-//     if (!user) {
-//       user = await User.create({
-//         name,
-//         email,
-//         provider: "google",
-//       });
-
-//       isNewUser = true;
-//     }
-
-//     // 2️⃣ Send Welcome Email (Same Design)
-//     //     if (isNewUser) {
-//     //       const transporter = nodemailer.createTransport({
-//     //         service: "gmail",
-//     //         auth: {
-//     //           user: process.env.EMAIL_USER,
-//     //           pass: process.env.EMAIL_PASS,
-//     //         },
-//     //       });
-
-//     //       await transporter.sendMail({
-//     //         from: `"DevPlue Support" <${process.env.EMAIL_USER}>`,
-//     //         to: email,
-//     //         subject: "Welcome to DevPlue 🎉",
-//     //         html: `
-//     // <!DOCTYPE html>
-//     // <html>
-//     // <head>
-//     // <meta charset="UTF-8" />
-//     // </head>
-
-//     // <body style="margin:0;padding:0;background:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
-
-//     // <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
-//     // <tr>
-//     // <td align="center">
-
-//     // <table width="600" cellpadding="0" cellspacing="0"
-//     // style="background:#ffffff;border-radius:12px;overflow:hidden;
-//     // box-shadow:0 10px 30px rgba(0,0,0,0.05);">
-
-//     // <!-- HEADER -->
-//     // <tr>
-//     // <td align="center"
-//     // style="background:linear-gradient(135deg,#f97316,#2563eb);padding:35px;">
-//     //   <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">
-//     //     Welcome to DevPlue 🚀
-//     //   </h1>
-//     // </td>
-//     // </tr>
-
-//     // <!-- CONTENT -->
-//     // <tr>
-//     // <td style="padding:40px 35px;">
-//     //   <h2 style="margin-top:0;color:#111827;">
-//     //     Hello ${name} 👋
-//     //   </h2>
-
-//     //   <p style="color:#374151;font-size:15px;line-height:1.6;">
-//     //     Your account has been successfully created using
-//     //     <strong>Google Sign-In</strong>.
-//     //   </p>
-
-//     //   <p style="color:#374151;font-size:15px;line-height:1.6;">
-//     //     You can now access your dashboard and start exploring DevPlue.
-//     //   </p>
-
-//     //   <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
-//     //     <tr>
-//     //       <td align="center">
-//     //         <a href="${process.env.CLIENT_URL}/dashboard"
-//     //           style="
-//     //             display:inline-block;
-//     //             padding:14px 28px;
-//     //             font-size:16px;
-//     //             color:#ffffff;
-//     //             background:linear-gradient(135deg,#f97316,#2563eb);
-//     //             text-decoration:none;
-//     //             border-radius:8px;
-//     //             font-weight:bold;
-//     //           ">
-//     //           Go to Dashboard
-//     //         </a>
-//     //       </td>
-//     //     </tr>
-//     //   </table>
-
-//     //   <p style="color:#6b7280;font-size:13px;">
-//     //     If you did not sign up using Google, please contact support immediately.
-//     //   </p>
-//     // </td>
-//     // </tr>
-
-//     // <!-- FOOTER -->
-//     // <tr>
-//     // <td align="center" style="background:#f9fafb;padding:20px;">
-//     //   <p style="margin:0;font-size:12px;color:#6b7280;">
-//     //     © ${new Date().getFullYear()} DevPlue. All rights reserved.
-//     //   </p>
-//     // </td>
-//     // </tr>
-
-//     // </table>
-
-//     // </td>
-//     // </tr>
-//     // </table>
-
-//     // </body>
-//     // </html>
-//     // `,
-//     //       });
-//     //     }
-
-//     // 3️⃣ Generate JWT
-//     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-//       expiresIn: "1d",
-//     });
-
-//     // 4️⃣ Set Cookie
-//     res.cookie("token", token, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-//       maxAge: 7 * 24 * 60 * 60 * 1000,
-//       path: "/",
-//     });
-
-//     // 5️⃣ Redirect user
-//     return res.redirect(`${process.env.CLIENT_URL}/dashboard`);
-//   } catch (error) {
-//     console.log(error);
-//     return res.redirect(`${process.env.CLIENT_URL}/login`);
-//   }
-// };
-
 exports.googleLogin = async (req, res) => {
   try {
     if (!req.user) {
@@ -909,4 +774,177 @@ exports.CheckMe = async (req, res) => {
   }
 
   res.json(user);
+};
+
+exports.followUser = async (req, res) => {
+  try {
+    const senderId = req.user.id;
+    const receiverId = req.params.userId;
+
+    if (senderId === receiverId) {
+      return res.status(400).json({ message: "You cannot follow yourself" });
+    }
+
+    const sender = await User.findById(senderId);
+    const receiver = await User.findById(receiverId);
+
+    if (!receiver) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (receiver.followers.includes(senderId)) {
+      return res.json({ status: "following" });
+    }
+
+    if (receiver.followRequests.includes(senderId)) {
+      return res.json({ status: "requested" });
+    }
+
+    receiver.followRequests.push(senderId);
+    await receiver.save();
+
+    await Notification.create({
+      senderId,
+      receiverId,
+      type: "FOLLOW_REQUEST",
+      title: "New Follow Request",
+      message: `${sender.name} sent you a follow request`,
+      status: "PENDING",
+    });
+
+    res.json({ status: "requested" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.acceptExpert = async (req, res) => {
+  try {
+    const receiverId = req.user.id;
+    const senderId = req.params.userId;
+
+    const receiver = await User.findById(receiverId);
+    const sender = await User.findById(senderId);
+
+    if (!receiver || !sender) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const followRequest = await Notification.findOne({
+      senderId: senderId,
+      receiverId: receiverId,
+      type: "FOLLOW_REQUEST",
+    }).sort({ createdAt: -1 });
+
+    if (!followRequest) {
+      return res.status(400).json({
+        message: "No follow request found",
+      });
+    }
+
+    // remove request from array
+    receiver.followRequests = receiver.followRequests.filter(
+      (id) => id.toString() !== senderId,
+    );
+
+    if (!receiver.followers.includes(senderId)) {
+      receiver.followers.push(senderId);
+    }
+
+    if (!sender.following.includes(receiverId)) {
+      sender.following.push(receiverId);
+    }
+
+    await receiver.save();
+    await sender.save();
+
+    followRequest.status = "ACCEPTED";
+    await followRequest.save();
+
+    res.json({
+      message: "Follow request accepted",
+      status: "following",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+exports.rejectFollow = async (req, res) => {
+  try {
+    const receiverId = req.user.id;
+    const senderId = req.params.userId;
+
+    const receiver = await User.findById(receiverId);
+
+    receiver.followRequests = receiver.followRequests.filter(
+      (id) => id.toString() !== senderId,
+    );
+
+    await receiver.save();
+
+    await Notification.findOneAndUpdate(
+      {
+        senderId: senderId,
+        receiverId: receiverId,
+        type: "FOLLOW_REQUEST",
+      },
+      {
+        status: "REJECTED",
+      },
+      { sort: { createdAt: -1 } },
+    );
+
+    res.json({
+      message: "Follow request rejected",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+exports.checkFollowStatus = async (req, res) => {
+  try {
+    const currentUserId = req.user.id;
+    const targetUserId = req.params.userId;
+
+    const request = await Notification.findOne({
+      senderId: currentUserId,
+      receiverId: targetUserId,
+      type: "FOLLOW_REQUEST",
+    }).sort({ createdAt: -1 });
+
+    const reverseRequest = await Notification.findOne({
+      senderId: targetUserId,
+      receiverId: currentUserId,
+      type: "FOLLOW_REQUEST",
+      status: "ACCEPTED",
+    });
+
+    if (!request) {
+      return res.json({
+        status: "not_following",
+        mutual: false,
+      });
+    }
+
+    if (request.status === "PENDING") {
+      return res.json({
+        status: "requested",
+        mutual: false,
+      });
+    }
+
+    if (request.status === "ACCEPTED") {
+      return res.json({
+        status: "following",
+        mutual: !!reverseRequest,
+      });
+    }
+
+    res.json({
+      status: "rejected",
+      mutual: false,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
