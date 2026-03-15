@@ -64,9 +64,10 @@ export default function Register() {
         router.push("/login");
       }, 1000);
     } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message || "Something went wrong. Try again.",
-      );
+      // toast.error(
+      //   err?.response?.data?.message || "Something went wrong. Try again.",
+      // );
+      console.log(err);
     } finally {
       setLoading(false);
     }
