@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
+import ExportApplicants from "@/components/ExportProjects";
 
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -129,121 +130,174 @@ export default function ProjectDetails() {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-lg p-8"
-        >
-          {/* Owner Actions */}
-          {isOwner && (
-            <div className="flex gap-3 mb-6">
-              {["OPEN", "IN_PROGRESS"].includes(project.status) && (
-                <button
-                  onClick={() =>
-                    router.push(`/dashboard/projects/${project._id}/edit`)
-                  }
-                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
-                >
-                  Edit Project
-                </button>
-              )}
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* PROJECT CARD */}
 
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
-              >
-                Delete Project
-              </button>
+          {!project && (
+            <div className="min-h-screen flex items-center justify-center bg-blue-50">
+              <p className="text-gray-600 text-lg">Project not found</p>
             </div>
           )}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8"
+          >
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {project.title}
+                </h1>
 
-          {/* Apply Button */}
-          {!isOwner && (
-            <div className="mb-6">
-              <button
-                disabled={alreadyApplied}
-                onClick={applyToProject}
-                className={`px-4 py-2 rounded-lg text-white ${
-                  alreadyApplied
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600"
+                <p className="mt-3 text-gray-600 max-w-2xl">
+                  {project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-3 mt-5">
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                    Budget: ${project.budget}
+                  </span>
+
+                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                    {project.category}
+                  </span>
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm
+                ${
+                  project.status === "OPEN"
+                    ? "bg-green-100 text-green-700"
+                    : project.status === "IN_PROGRESS"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-200 text-gray-700"
                 }`}
-              >
-                {alreadyApplied ? "Already Applied" : "Apply for Project"}
-              </button>
-            </div>
-          )}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+              </div>
 
-          {/* Project Info */}
-          <h1 className="text-3xl font-bold text-gray-900">{project.title}</h1>
-
-          <p className="mt-4 text-gray-600">{project.description}</p>
-
-          <div className="mt-6 space-y-2">
-            <p className="text-blue-600 font-medium">
-              Budget: ${project.budget}
-            </p>
-
-            <p className="text-gray-600">Category: {project.category}</p>
-
-            <span
-              className={`inline-block px-3 py-1 text-xs rounded-full ${
-                project.status === "OPEN"
-                  ? "bg-green-100 text-green-700"
-                  : project.status === "IN_PROGRESS"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {project.status}
-            </span>
-          </div>
-
-          {/* Applicants */}
-          <h2 className="mt-10 text-xl font-semibold text-gray-900">
-            Applicants
-          </h2>
-
-          {project.applicants?.length === 0 && (
-            <p className="text-gray-500 mt-2">No applicants yet</p>
-          )}
-
-          <div className="mt-4 space-y-3">
-            {project.applicants?.map((app: any, index: number) => {
-              const expert =
-                typeof app.expertId === "object" ? app.expertId : null;
-
-              return (
-                <div
-                  key={app._id || expert?._id || index}
-                  className="p-4 border border-gray-200 rounded-lg bg-gray-50"
-                >
-                  <p className="text-gray-900 font-medium">
-                    {expert?.name || "Unknown Expert"}
-                  </p>
-
-                  {expert?.email && (
-                    <p className="text-sm text-gray-500">{expert.email}</p>
-                  )}
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Status: {app.status || "Pending"}
-                  </p>
-
-                  {/* Accept Button */}
-                  {isOwner && project.status === "OPEN" && (
+              {/* ACTIONS */}
+              <div className="flex flex-wrap gap-3">
+                {isOwner &&
+                  ["OPEN", "IN_PROGRESS"].includes(project.status) && (
                     <button
-                      onClick={() => acceptExpert(expert?._id)}
-                      className="mt-3 px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm"
+                      onClick={() =>
+                        router.push(`/dashboard/projects/${project._id}/edit`)
+                      }
+                      className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
                     >
-                      Accept
+                      Edit
                     </button>
                   )}
+
+                {isOwner && (
+                  <button
+                    onClick={handleDelete}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                  >
+                    Delete
+                  </button>
+                )}
+
+                {!isOwner && project.applicants?.length && (
+                  <button
+                    disabled={alreadyApplied}
+                    onClick={applyToProject}
+                    className={`px-4 py-2 rounded-lg text-white
+                  ${
+                    alreadyApplied
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600"
+                  }`}
+                  >
+                    {alreadyApplied ? "Applied" : "Apply"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* APPLICANTS TABLE */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white border border-gray-200 rounded-2xl shadow-lg p-6"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Applicants
+              </h2>
+
+              {isOwner && (
+                <div className="flex flex-wrap gap-2 sm:justify-end">
+                  <ExportApplicants applicants={project.applicants || []} />
                 </div>
-              );
-            })}
-          </div>
-        </motion.div>
+              )}
+            </div>
+
+            {project.applicants?.length === 0 ? (
+              <p className="text-gray-500">No applicants yet</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b text-gray-600 text-sm">
+                      <th className="py-3">Expert</th>
+                      <th>Status</th>
+                      <th>Email</th>
+                      {isOwner && <th className="text-right">Action</th>}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {project.applicants?.map((app: any, index: number) => {
+                      const expert =
+                        typeof app.expertId === "object" ? app.expertId : null;
+
+                      return (
+                        <tr
+                          key={app._id || expert?._id || index}
+                          className="border-b hover:bg-gray-50"
+                        >
+                          <td
+                            onClick={() =>
+                              router.push(`/profile/${expert?._id}`)
+                            }
+                            className="py-3 font-medium text-gray-900 cursor-pointer"
+                          >
+                            {expert?.name || "Unknown Expert"}
+                          </td>
+
+                          <td>
+                            <span className="text-sm px-2 py-1 bg-gray-100 rounded">
+                              {app.status || "Pending"}
+                            </span>
+                          </td>
+
+                          <td className="text-gray-600 text-sm">
+                            {expert?.email || "-"}
+                          </td>
+
+                          {isOwner && project.status === "OPEN" && (
+                            <td className="text-right">
+                              <button
+                                onClick={() => acceptExpert(expert?._id)}
+                                className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm"
+                              >
+                                Accept
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </motion.div>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import API from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { getCurrentUser } from "@/lib/auth";
 
 type Business = {
   _id: string;
@@ -22,10 +23,15 @@ export default function Businesses() {
   const [search, setSearch] = useState("");
 
   const router = useRouter();
+  const User = getCurrentUser();
 
   const fetchBusinesses = async () => {
     try {
       const res = await API.get("/business/users");
+      if (User === res.data._id) {
+        router.push("/settings");
+        return;
+      }
       setBusinesses(res.data);
     } catch (error) {
       console.error("Error fetching businesses:", error);

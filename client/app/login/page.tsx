@@ -3,25 +3,29 @@
 import { useState } from "react";
 import API from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { Eye, EyeClosed, Frown } from "lucide-react";
-import { showToast } from "@/components/Toast";
-import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { Eye, EyeClosed } from "lucide-react";
 import { setCurrentUser } from "@/lib/auth";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function Login() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
+
   const [errors, setErrors] = useState<{ email?: string }>({});
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   const login = async () => {
     if (!form.email.trim()) {
@@ -39,7 +43,8 @@ export default function Login() {
 
       const res = await API.post("/auth/login", form);
 
-      toast.success(`${res.data.message}`);
+      toast.success(res.data.message);
+
       const role = res.data.user.role;
       setCurrentUser(res.data.user._id);
 
@@ -49,7 +54,7 @@ export default function Login() {
         router.push("/dashboard/expert");
       }
     } catch (err: any) {
-      toast.error(`${err?.response?.data?.message || "Invalid credentials."}`);
+      toast.error(err?.response?.data?.message || "Invalid credentials.");
     } finally {
       setLoading(false);
     }
@@ -59,11 +64,13 @@ export default function Login() {
     if (!form.email) {
       return toast.error("Email is required");
     }
-    const email = form.email;
+
     try {
       setLoading(true);
 
-      const res = await API.post("/auth/forgot-password", { email });
+      const res = await API.post("/auth/forgot-password", {
+        email: form.email,
+      });
 
       toast.success(res.data.message || "Reset link sent");
     } catch (err: any) {
@@ -73,12 +80,52 @@ export default function Login() {
     }
   };
 
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 sm:px-6 overflow-hidden">
+      {/* Animated Gradient Blobs */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <motion.div
+          animate={{ x: [0, 60, -40, 0], y: [0, -40, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-300 opacity-30 rounded-full blur-3xl"
+        />
+
+        <motion.div
+          animate={{ x: [0, -50, 40, 0], y: [0, 50, -30, 0] }}
+          transition={{ duration: 25, repeat: Infinity }}
+          className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-300 opacity-30 rounded-full blur-3xl"
+        />
+
+        <motion.div
+          animate={{ x: [0, 40, -20, 0], y: [0, -40, 20, 0] }}
+          transition={{ duration: 18, repeat: Infinity }}
+          className="absolute top-1/2 left-1/3 w-80 h-80 bg-purple-300 opacity-20 rounded-full blur-3xl"
+        />
+      </div>
+
+      {/* Floating Particles */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <motion.span
+            key={i}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 1, 0.3],
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+            }}
+            className="absolute w-2 h-2 bg-blue-400 rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Login Card */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -107,6 +154,7 @@ export default function Login() {
               value={form.email}
               onChange={(e) => {
                 const value = e.target.value;
+
                 setForm({ ...form, email: value });
 
                 if (!value) {
@@ -136,8 +184,7 @@ export default function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-12 text-sm sm:text-base
-                focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 pr-12 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
 
@@ -157,9 +204,7 @@ export default function Login() {
             whileHover={{ scale: 1.02 }}
             onClick={forgotMode ? forgotPassword : login}
             disabled={loading}
-            className="mt-6 w-full py-3 rounded-xl font-semibold text-white
-            bg-blue-500 hover:bg-blue-600
-            transition shadow-lg disabled:opacity-60"
+            className="mt-6 w-full py-3 rounded-xl font-semibold text-white bg-blue-500 hover:bg-blue-600 transition shadow-lg disabled:opacity-60"
           >
             {loading
               ? "Please wait..."
@@ -183,7 +228,7 @@ export default function Login() {
             </>
           )}
 
-          {/* Toggle Links */}
+          {/* Links */}
           <div className="mt-6 text-center text-sm text-gray-600 space-y-2">
             {!forgotMode ? (
               <>

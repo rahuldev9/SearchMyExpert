@@ -10,7 +10,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     const ok = await showConfirm(
-      "Are you sure you want to delete your account?",
+      "Are you sure you want to Log out?",
       "warning",
     );
 

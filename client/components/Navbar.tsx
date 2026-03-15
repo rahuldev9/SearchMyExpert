@@ -29,7 +29,7 @@ export default function Navbar() {
         savedRole === "business" ? "/dashboard/business" : "/dashboard/expert",
       );
     }
-  }, [pathname]);
+  }, [pathname, router]);
 
   const dashboardLink =
     role === "business" ? "/dashboard/business" : "/dashboard/expert";
@@ -43,11 +43,20 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 font-medium">
-          {/* Loader while reading cookies */}
           {loading && (
             <div className="w-28 h-10 rounded-xl bg-gray-200 animate-pulse"></div>
           )}
 
+          {/* Always visible */}
+          <Link href="/experts" className="hover:text-blue-600 transition">
+            Experts
+          </Link>
+
+          <Link href="/business" className="hover:text-blue-600 transition">
+            Business
+          </Link>
+
+          {/* Conditional buttons */}
           {!loading && role && !isDashboardPage ? (
             <Link
               href={dashboardLink}
@@ -97,6 +106,13 @@ export default function Navbar() {
               {loading && (
                 <div className="w-full h-12 rounded-xl bg-gray-200 animate-pulse"></div>
               )}
+              <Link href="/experts" className="hover:text-blue-600 transition">
+                Experts
+              </Link>
+
+              <Link href="/business" className="hover:text-blue-600 transition">
+                Business
+              </Link>
 
               {!loading && role && !isDashboardPage ? (
                 <Link

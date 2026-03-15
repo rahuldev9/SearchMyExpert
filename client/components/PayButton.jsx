@@ -29,9 +29,17 @@ export default function PayButton({ project }) {
   return (
     <button
       onClick={payExpert}
-      className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+      disabled={loading}
+      className="flex items-center justify-center gap-2 w-full py-2.5 px-3 text-sm font-medium bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white rounded-lg transition"
     >
-      {loading ? "Processing..." : "Pay"}
+      {loading ? (
+        <>
+          <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+          Processing...
+        </>
+      ) : (
+        <>Pay ${project.budget}</>
+      )}
     </button>
   );
 }

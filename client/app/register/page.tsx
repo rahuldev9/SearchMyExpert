@@ -58,7 +58,11 @@ export default function Register() {
       const res = await API.post("/auth/register", form);
 
       toast.success(res.data.message || "Registered successfully!");
-      router.push("/login");
+
+      // redirect after 3 seconds
+      setTimeout(() => {
+        router.push("/login");
+      }, 1000);
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || "Something went wrong. Try again.",
