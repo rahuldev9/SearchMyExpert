@@ -6,6 +6,7 @@ import API from "@/lib/api";
 import DashboardLayout from "@/components/DashboardLayout";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import PageLoader from "@/components/PageLoader";
 
 export default function CreateProject() {
   const router = useRouter();
@@ -39,6 +40,10 @@ export default function CreateProject() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (loading) {
+    <PageLoader />;
   }
 
   return (
