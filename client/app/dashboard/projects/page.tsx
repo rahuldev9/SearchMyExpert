@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import API from "@/lib/api";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
+import { toast } from "sonner";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -80,9 +81,9 @@ export default function ProjectsPage() {
         ),
       );
 
-      alert("Applied successfully");
+      toast.success("Applied successfully");
     } catch (error) {
-      alert("You already applied or something went wrong");
+      toast.error("You already applied or something went wrong");
     }
   }
   const filteredProjects = projects.filter((project) => {

@@ -11,6 +11,7 @@ import PayButton from "@/components/PayButton";
 import { getUserId } from "@/contexts/AuthDetails";
 import CashFree from "@/components/CashFreePay";
 import PaymentOptions from "@/components/PaymentPopup";
+import { toast } from "sonner";
 const userId = getUserId();
 export default function MyProjects() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -89,7 +90,7 @@ export default function MyProjects() {
       );
     } catch (error) {
       console.error("Complete project error:", error);
-      alert("Failed to complete project");
+      toast.error("Failed to complete project");
     }
   }
 
@@ -119,14 +120,14 @@ export default function MyProjects() {
       setRating(5);
       setClosingProject(false);
 
-      alert(
+      toast.success(
         closingProject
           ? "Project closed successfully with review"
           : "Review submitted successfully",
       );
     } catch (error) {
       console.error("Review error:", error);
-      alert("Failed to submit review");
+      toast.error("Failed to submit review");
     }
   }
 
