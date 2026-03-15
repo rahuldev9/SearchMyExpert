@@ -2,13 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send, Bot, User, X, MessageCircle } from "lucide-react";
-
+import { usePathname } from "next/navigation";
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
 
 export default function Chatbot() {
+  const pathname = usePathname();
+  const hiddenRoutes = ["/dashboard", "/settings"];
+
+  if (hiddenRoutes.some((route) => pathname.startsWith(route))) {
+    return null;
+  }
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hello 👋 How can I help you?" },
