@@ -1,5 +1,6 @@
 import "./globals.css";
 import AuthGuard from "@/components/AuthGuard";
+import Chatbot from "@/components/Chatbot";
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
@@ -146,7 +147,7 @@ export default function RootLayout({
           }}
         />
         <Toaster position="top-center" richColors />
-
+        <Chatbot />
         <main className="min-h-screen">{children}</main>
       </body>
     </html>
