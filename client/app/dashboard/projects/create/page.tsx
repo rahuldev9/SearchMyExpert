@@ -44,17 +44,9 @@ export default function CreateProject() {
   return (
     <DashboardLayout>
       {/* Header */}
-      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-lg sm:text-xl font-bold text-gray-900"
-          >
-            Project Dashboard
-          </motion.h1>
-
-          <div className="flex items-center gap-3">
+      <header className="w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-end justify-end">
+          <div className="flex items-end gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

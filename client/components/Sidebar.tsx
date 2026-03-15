@@ -269,7 +269,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                     <button
                       key={item.path}
                       onClick={() => router.push(item.path)}
-                      className="flex flex-col items-center gap-1 text-xs"
+                      className="flex flex-col items-center gap-1 text-xs cursor-pointer"
                     >
                       <Icon
                         size={22}

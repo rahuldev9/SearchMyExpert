@@ -104,24 +104,16 @@ exports.sendMessage = async (req, res) => {
     const newMessage = {
       senderId: userId,
       message,
+      createdAt: new Date(),
     };
 
     chat.messages.push(newMessage);
 
     await chat.save();
 
-    const updatedChat = await Chat.findOne({ projectId }).populate(
-      "messages.senderId",
-      "name",
-    );
-
-    const lastMessage = updatedChat.messages[updatedChat.messages.length - 1];
-
-    /* SOCKET.IO BROADCAST */
-    const io = req.app.get("io");
-    io.to(projectId).emit("receiveMessage", lastMessage);
-
-    res.json(updatedChat.messages);
+    await chat.populate("messages.senderId", "name");
+    const lastMessage = chat.messages[chat.messages.length - 1];
+    res.json(lastMessage);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

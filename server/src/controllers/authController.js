@@ -163,12 +163,7 @@ style="background:linear-gradient(135deg,#3b82f6,#2563eb);padding:35px;">
 </html>
 `,
     });
-    try {
-      console.log("Email sent:", info);
-    } catch (error) {
-      console.error("MAIL ERROR:", error);
-      throw error;
-    }
+
     // 6️⃣ Rollback if email fails
     if (!info.accepted || info.accepted.length === 0) {
       await User.findByIdAndDelete(user._id);

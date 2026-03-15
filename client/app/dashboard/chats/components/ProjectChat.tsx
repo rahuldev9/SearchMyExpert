@@ -2,31 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import API from "@/lib/api";
-import { io } from "socket.io-client";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import { getCurrentUser } from "@/lib/auth";
-
-const socket = io(process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000");
 
 export default function ProjectChat({ projectId }: { projectId: string }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const currentUser = getCurrentUser();
+  useEffect(() => {
+    const interval = setInterval(fetchMessages, 2000);
+    return () => clearInterval(interval);
+  }, [projectId]);
 
   useEffect(() => {
     fetchMessages();
-
-    socket.emit("joinProject", projectId);
-
-    socket.on("receiveMessage", (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    return () => {
-      socket.off("receiveMessage");
-    };
   }, [projectId]);
 
   useEffect(() => {
@@ -45,22 +36,22 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
   async function sendMessage() {
     if (!text.trim()) return;
 
-    const newMessage = {
-      projectId,
+    const tempMessage = {
       message: text,
-      senderId: currentUser._id,
+      senderId: currentUser.id,
       senderName: currentUser.name,
       createdAt: new Date(),
     };
 
+    // show message immediately
+    setMessages((prev) => [...prev, tempMessage]);
+
+    setText("");
+
     try {
       await API.post(`/chat/${projectId}`, {
-        message: text,
+        message: tempMessage.message,
       });
-
-      // socket.emit("sendMessage", newMessage);
-
-      setText("");
     } catch (error) {
       console.error("Failed to send message", error);
     }
@@ -75,7 +66,7 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
       <div className="flex flex-col h-[550px] bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden m-2">
         {/* Header */}
         <div className="px-6 py-4 border-b bg-white">
-          <h2 className="text-lg font-semibold text-gray-800">{projectId}</h2>
+          <h2 className="text-lg font-semibold text-gray-800">Project Chat</h2>
         </div>
 
         {/* Messages */}
@@ -90,7 +81,7 @@ export default function ProjectChat({ projectId }: { projectId: string }) {
             const senderId =
               typeof m.senderId === "object" ? m.senderId._id : m.senderId;
 
-            const isMe = senderId === currentUser?.id;
+            const isMe = senderId?.toString() === currentUser?.id?.toString();
 
             return (
               <motion.div

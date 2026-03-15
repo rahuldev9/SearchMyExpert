@@ -6,6 +6,7 @@ import API from "@/lib/api";
 import { getUserProfile } from "@/contexts/AuthDetails";
 import LogoutButton from "@/components/LogoutButton";
 import { toast } from "sonner";
+import { showConfirm } from "../../components/ConfirmModal";
 
 interface User {
   _id: string;
@@ -169,9 +170,12 @@ export default function ProfileSettingsPage() {
   // ================= DELETE ACCOUNT =================
 
   const deleteAccount = async () => {
-    const confirmDelete = confirm("Delete your account?");
+    const ok = await showConfirm(
+      "Are you sure you want to delete your account?",
+      "warning",
+    );
 
-    if (!confirmDelete) return;
+    if (!ok) return;
 
     try {
       await API.delete("/auth/delete-account");
@@ -196,7 +200,7 @@ export default function ProfileSettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="m-4">
+      <div className="m-4 pb-12">
         {/* COVER + PROFILE HEADER */}
 
         <div className="relative">
@@ -457,7 +461,7 @@ export default function ProfileSettingsPage() {
 
         {/* ACCOUNT ACTIONS */}
 
-        <div className="mt-10 border-t pt-6 flex gap-4 px-4">
+        <div className="mt-10 border-none pt-6 flex gap-4 px-4">
           <LogoutButton />
 
           <button
