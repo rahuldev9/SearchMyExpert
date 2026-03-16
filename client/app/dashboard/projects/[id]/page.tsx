@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import DashboardLayout from "@/components/DashboardLayout";
 import ExportApplicants from "@/components/ExportProjects";
+import { toast } from "sonner";
 
 export default function ProjectDetails() {
   const { id } = useParams();
@@ -43,7 +44,7 @@ export default function ProjectDetails() {
     try {
       await API.post(`/projects/${project._id}/apply`);
 
-      alert("Applied successfully");
+      toast.success("Applied successfully");
 
       setProject((prev: any) => ({
         ...prev,
@@ -61,7 +62,7 @@ export default function ProjectDetails() {
       }));
     } catch (error) {
       console.error(error);
-      alert("You already applied or something went wrong");
+      toast.error("You already applied or something went wrong");
     }
   }
 
@@ -74,11 +75,11 @@ export default function ProjectDetails() {
 
     try {
       await API.delete(`/projects/${project._id}`);
-      alert("Project deleted successfully");
+      toast.success("Project deleted successfully");
       router.push("/dashboard/projects");
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete project");
+      toast.error("Failed to delete project");
     }
   }
 
@@ -88,12 +89,12 @@ export default function ProjectDetails() {
         expertId,
       });
 
-      alert("Expert accepted");
+      toast.success("Expert accepted");
 
       setProject(res.data);
     } catch (error) {
       console.error(error);
-      alert("Failed to accept expert");
+      toast.error("Failed to accept expert");
     }
   }
 
