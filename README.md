@@ -181,11 +181,37 @@ Businesses can:
 ```
 SearchMyExpert
 │
-├── client      # Frontend (Next.js)
+├ client (Frontend)
 │
-├── server      # Backend (Node.js + Express)
+│ ├ app
+│ │ ├ ai
+│ │ ├ business
+│ │ ├ dashboard
+│ │ ├ experts
+│ │ ├ login
+│ │ ├ register
+│ │ ├ profile
+│ │ ├ requests
+│ │ ├ settings
 │
-└── README.md
+│ ├ components
+│ │ ├ AuthGuard
+│ │ ├ Chatbot
+│ │ ├ ConfirmModal
+│ │ ├ CashFreePay
+│
+│ ├ package.json
+│
+├ server (Backend)
+│
+│ ├ index.js
+│
+│ ├ src
+│ │ ├ config
+│ │ ├ controllers
+│ │ ├ middleware
+│ │ ├ models
+│ │ ├ routes
 ```
 
 ---
