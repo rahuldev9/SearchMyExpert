@@ -1,290 +1,253 @@
 # SearchMyExpert
 
-SearchMyExpert is a web application designed to connect **businesses** with **experts** to collaborate on projects. Businesses can post their project requirements and experts can discover, accept, and work on those projects through the platform.
+SearchMyExpert is a full-stack web platform that connects **business owners with skilled experts** to collaborate on projects. Businesses can post project requirements and experts can apply to work on those projects.
 
-The goal of the platform is to simplify the process of **finding skilled professionals and managing project collaboration** in one place.
-
----
-
-# Overview
-
-SearchMyExpert acts as a **marketplace platform** where businesses can find experts to complete tasks and projects. Experts can explore opportunities and collaborate with businesses through built-in communication and project management tools.
-
-The platform focuses on making collaboration simple by combining **project posting, expert discovery, communication, and reviews** in a single application.
+The platform includes **project management, real-time collaboration, AI-based expert matching, and secure payment integration**.
 
 ---
 
-# Features
+# 🚀 Features
 
-## Authentication and Authorization
+## Authentication & Authorization
 
-The application includes a secure authentication system.
-
-* Email registration
-* Email verification
-* Forgot password functionality
-* Google authentication
-* Secure login and logout
-* Account deletion
-
-These features ensure safe access and account management for users.
+- User registration and login
+- Google OAuth authentication
+- Role-based access (Business / Expert)
+- Secure session handling
+- Logout functionality
+- Delete account option
 
 ---
 
-## User Roles
+# 👥 User Roles
 
-The platform supports two types of users.
-
-### Business Users
+## Business Users
 
 Business users can:
 
-* Create accounts
-* Post project requirements
-* Search for experts
-* Communicate with experts
-* Review experts after project completion
+- Create and manage projects
+- Post project requirements
+- Receive expert applications
+- Accept or reject expert requests
+- Download applicant lists (PDF, CSV, XLSX)
+- Chat with experts
+- Make payments after project completion
+- Review expert performance
 
-### Expert Users
+## Expert Users
 
 Experts can:
 
-* Register on the platform
-* Receive notifications for new projects
-* Accept projects
-* Communicate with business users
-* Complete projects and receive reviews
-
-Each user role has a **separate dashboard** designed for their workflow.
+- Browse available projects
+- Apply for projects
+- Receive project acceptance notifications
+- Communicate with businesses
+- Mark projects as completed
+- Receive reviews and ratings
 
 ---
 
-# Dashboards
+# 📊 Dashboards
 
-After authentication, users are redirected to their respective dashboards.
+The application includes separate dashboards for each role.
 
 ## Business Dashboard
 
-The business dashboard allows users to:
-
-* Post projects
-* View accepted experts
-* Track project progress
-* Receive notifications
+- Create project
+- Edit project
+- View applications
+- Accept experts
+- Download application list
+- Chat with experts
+- Start payments
+- Review expert performance
 
 ## Expert Dashboard
 
-The expert dashboard allows users to:
-
-* View available projects
-* Accept projects
-* Manage ongoing projects
-* Communicate with businesses
-
----
-
-# Project Workflow
-
-The platform supports a complete project lifecycle.
-
-## 1. Project Posting
-
-Businesses create and publish projects describing their requirements.
-
-## 2. Expert Notification
-
-All registered experts receive notifications when a new project is posted.
-
-## 3. Project Acceptance
-
-Experts can browse projects and accept the ones they want to work on.
-
-## 4. Business Notification
-
-When an expert accepts a project, the business user receives a notification.
-
-## 5. Chat Communication
-
-A chat system is created between the business and the expert to discuss project details.
-
-## 6. Project Completion
-
-The expert marks the project as completed once the work is finished.
-
-## 7. Review System
-
-Businesses can leave reviews and feedback for experts.
+- View available projects
+- Apply to projects
+- Track accepted projects
+- Chat with business users
+- Mark project as completed
+- View reviews
 
 ---
 
-# Expert Discovery
+# 🔔 Notifications
 
-## Global Expert Search
+The system provides real-time notifications for:
 
-Businesses can search for experts using a global search feature.
-
-## Expert Profile
-
-Each expert has a profile page displaying:
-
-* Name
-* Bio
-* Experience
-* Skills
-* Reviews
-
-This helps businesses evaluate experts before hiring them.
+- New project postings
+- Expert applications
+- Project acceptance
+- Project completion
+- Payment updates
 
 ---
 
-# AI Assisted Matching
+# 💬 Real-time Chat
 
-The platform includes an AI-based feature where businesses can describe their requirements and the system suggests experts that match the criteria.
-
-This helps businesses find suitable experts more efficiently.
+Each project automatically creates a **chat system** between the business and the expert for collaboration and discussion.
 
 ---
 
-# Profile Management
+# 🤖 AI Expert Matching
 
-Users can manage their personal information through profile settings.
+Businesses can describe the project requirements using natural language.
 
-Users can:
-
-* Update personal details
-* Update bio and experience
-* Manage account settings
-* Delete their account
+The AI system analyzes the requirements and recommends the most suitable experts.
 
 ---
 
-# Notifications
+# 💳 Payment System
 
-The application provides notifications for important events.
+Integrated payment gateways:
 
-Notifications include:
+- Stripe
+- Cashfree
 
-* New project alerts for experts
-* Project acceptance notifications for businesses
-* Project completion notifications
-* System updates
+After project completion:
 
-Future updates will include **email notification automation**.
-
----
-
-# Data Collection
-
-The platform collects onboarding information from users.
-
-## Required Fields
-
-* Name
-* Email
-* Role (Business or Expert)
-
-## Optional Fields
-
-* Phone
-* Bio
-* Experience
-
-User data is stored in **Google Sheets using Google Apps Script integration**.
+1. Business initiates payment
+2. Payment is processed
+3. Expert receives confirmation
+4. Business leaves review
 
 ---
 
-# Tech Stack
+# 🔍 Expert Discovery
+
+Businesses can:
+
+- Search experts globally
+- View expert profiles
+- Check skills and experience
+- View ratings and reviews
+
+---
+
+# 📂 Project Workflow
+
+1. Business posts project
+2. Experts receive notification
+3. Experts apply
+4. Business reviews applications
+5. Business accepts expert
+6. Chat opens for discussion
+7. Expert completes project
+8. Business makes payment
+9. Business leaves review
+10. Project closed
+
+---
+
+# 🛠 Tech Stack
 
 ## Frontend
 
-* Next.js
-* React
+- Next.js
+- React
+- Tailwind CSS
+- TypeScript
 
 ## Backend
 
-* Next.js API Routes
-* Google Apps Script
+- Node.js
+- Express.js
+
+## Database
+
+- MongoDB
 
 ## Authentication
 
-* Email authentication
-* Google OAuth
+- JWT Authentication
+- Google OAuth
+- Passport.js
 
-## Database / Data Storage
+## Payments
 
-* Google Sheets integration
+- Stripe
+- Cashfree
 
-## Styling
+## AI Integration
 
-* Tailwind CSS
-
----
-
-# Current Development Status
-
-The application currently includes:
-
-* Homepage
-* Authentication system
-* Google authentication
-* Role-based dashboards
-* Project posting system
-* Expert notifications
-* Chat system
-* Project completion workflow
-* Review system
-* Expert search functionality
-* Profile management
-* Google Sheets integration
-* Initial AI-based expert matching
+- AI expert recommendation system
 
 ---
 
-# Future Improvements
+# 📁 Project Structure
 
-## Automation
-
-* Automated email notifications
-* Project reminder notifications
-* Workflow automation
-
-## AI Enhancements
-
-* Improved expert recommendation system
-* AI requirement analysis
-* AI-powered expert matching
-
-## Platform Enhancements
-
-* Advanced filtering for experts
-* Project milestone tracking
-* Real-time collaboration tools
-* Performance analytics
-
-## Business Tools
-
-* Hiring analytics
-* Project management dashboard
-* Business insights
-
-## Expert Tools
-
-* Portfolio management
-* Skill verification
-* Performance tracking
+```
+SearchMyExpert
+│
+├── client      # Frontend (Next.js)
+│
+├── server      # Backend (Node.js + Express)
+│
+└── README.md
+```
 
 ---
 
-# Future Vision
+# ⚙️ Installation
 
-The long-term goal of SearchMyExpert is to build a **scalable collaboration platform** where businesses can easily find trusted experts and experts can build professional reputations through successful projects.
+## 1. Clone Repository
 
-The platform aims to support efficient collaboration, talent discovery, and AI-driven expert matching.
+```
+git clone https://github.com/yourusername/SearchMyExpert.git
+```
+
+## 2. Install Frontend
+
+```
+cd client
+npm install
+npm run dev
+```
+
+## 3. Install Backend
+
+```
+cd server
+npm install
+npm start
+```
 
 ---
 
-# Author
+# 🌐 Environment Variables
 
-Mudavath Rahul
 
-Bootcamp project focused on building a practical platform that connects businesses with experts for real-world project collaboration.
+Frontend `.env`
+```
+NEXT_PUBLIC_BACKEND_API=
+OPENAI_API_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+---
+
+Backend `.env`
+
+```
+PORT=5000
+MONGO_URI=
+JWT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+STRIPE_SECRET_KEY=
+CASHFREE_APP_ID=
+CASHFREE_SECRET_KEY=
+```
+
+---
+
+
+
+# 👨‍💻 Author
+
+**Rahul Mudavath**
+
+Bootcamp Project  
+Full Stack Web Application
