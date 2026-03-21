@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "Automation Experts",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://searchmyexpert-psi.vercel.app/logo.png",
         width: 1200,
         height: 630,
         alt: "Automation Experts Marketplace",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     title: "Automation Experts Marketplace",
     description:
       "Hire top automation experts for Zapier, n8n, AI agents and integrations.",
-    images: ["/og-image.png"],
+    images: ["https://searchmyexpert-psi.vercel.app/logo.png"],
   },
 
   robots: {
